@@ -1,0 +1,18 @@
+{
+    "name": "@sanggeun.choi/react-bus",
+    "version": "0.0.0",
+    "author": "sanggeun.choi",
+    "homepage": "https://github.com/sanggeun-choi/react-bus",
+    "description": "",
+    "main": "dist/index.js",
+    "license": "MIT",
+    "scripts": {
+        "build": "babel src -d dist"
+    },
+    "devDependencies": {
+        "babel-cli": "^6.26.0",
+        "babel-node": "^0.0.1-security",
+        "babel-preset-env": "^1.7.0",
+        "prettier": "^2.0.5"
+    }
+}
