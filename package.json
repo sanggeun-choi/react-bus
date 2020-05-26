@@ -1,18 +1,28 @@
 {
-    "name": "@sanggeun.choi/react-bus",
+    "name": "@iore8655/react-bus",
     "version": "0.0.0",
-    "author": "sanggeun.choi",
+    "author": "sanggeun-choi",
     "homepage": "https://github.com/sanggeun-choi/react-bus",
     "description": "",
+    "keywords": [
+        "react",
+        "state",
+        "react-bus"
+    ],
     "main": "dist/index.js",
     "license": "MIT",
     "scripts": {
-        "build": "babel src -d dist"
+        "build": "babel src -d dist",
+        "publish-react-bus": "npm publish --access public",
+        "unpublish-react-bus": "npm unpublish @iore8655/react-bus -f"
     },
     "devDependencies": {
         "babel-cli": "^6.26.0",
         "babel-node": "^0.0.1-security",
         "babel-preset-env": "^1.7.0",
-        "prettier": "^2.0.5"
+        "lodash": "^4.17.15",
+        "prettier": "^2.0.5",
+        "react": "^16.13.1",
+        "react-dom": "^16.13.1"
     }
 }
