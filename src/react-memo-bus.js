@@ -5,24 +5,19 @@ import BUS_CONST from './react-bus-consts';
 export default (context) => {
     const memoBus = (getter, stateBusDeps) => {
         if (lodash.some(stateBusDeps, (stateBus) => stateBus.type !== BUS_CONST.TYPE.STATE_BUS)) {
-            throw Error(
-                `contains invalid bus type in stateBusDeps - ${stateBusDeps.map(
-                    (stateBus) => stateBus.type,
-                )}`,
-            );
+            throw Error(`contains invalid bus type in stateBusDeps - ${stateBusDeps.map((stateBus) => stateBus.type)}`);
         }
 
         return {
             type: BUS_CONST.TYPE.MEMO_BUS,
-            busId: `bus-${context.busId++}`,
             get: getter,
             stateBusDeps,
         };
     };
 
     const useMemoBus = (memoBus) => {
-        const _subId = useMemo(() => `sub-${context.subId++}`, []);
         const [state, setState] = useState(undefined);
+        const subId = useMemo(() => `sub-${context.subId++}`, []);
 
         if (memoBus.type !== BUS_CONST.TYPE.MEMO_BUS) {
             throw Error(`This is not ${BUS_CONST.TYPE.MEMO_BUS} - ${memoBus.type}`);
@@ -38,18 +33,10 @@ export default (context) => {
 
             callback();
 
-            memoBus.stateBusDeps.forEach((stateBus) => {
-                lodash.set(context.subscribers, `${stateBus.busId}.${_subId}`, {
-                    callback,
-                });
-            });
+            memoBus.stateBusDeps.forEach((stateBus) => (stateBus.subscribers[subId] = { callback }));
 
-            return () => {
-                memoBus.stateBusDeps.forEach((stateBus) => {
-                    delete context.subscribers[stateBus.busId][_subId];
-                });
-            };
-        }, [_subId, memoBus]);
+            return () => memoBus.stateBusDeps.forEach((stateBus) => delete stateBus.subscribers[subId]);
+        }, [subId, memoBus]);
 
         return state;
     };
