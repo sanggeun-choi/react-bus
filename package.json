@@ -1,6 +1,6 @@
 {
     "name": "@iore8655/react-bus",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "author": "sanggeun-choi",
     "homepage": "https://github.com/sanggeun-choi/react-bus",
     "description": "",
@@ -12,17 +12,37 @@
     "main": "dist/index.js",
     "license": "MIT",
     "scripts": {
-        "build": "babel src -d dist",
+        "test": "jest",
+        "test:watch": "jest --watch",
+        "build": "babel src/main -d dist",
         "publish-react-bus": "npm publish --access public",
         "unpublish-react-bus": "npm unpublish @iore8655/react-bus -f"
     },
     "devDependencies": {
-        "babel-cli": "^6.26.0",
-        "babel-node": "^0.0.1-security",
-        "babel-preset-env": "^1.7.0",
+        "@babel/cli": "^7.10.1",
+        "@babel/core": "^7.10.1",
+        "@babel/preset-env": "^7.10.1",
+        "@babel/preset-react": "^7.10.1",
+        "@testing-library/dom": "^7.7.0",
+        "@testing-library/jest-dom": "^5.9.0",
+        "@testing-library/react": "^10.0.4",
+        "@testing-library/react-hooks": "^3.2.1",
+        "jest": "^26.0.1",
         "lodash": "^4.17.15",
         "prettier": "^2.0.5",
         "react": "^16.13.1",
-        "react-dom": "^16.13.1"
+        "react-app-polyfill": "^1.0.6",
+        "react-dom": "^16.13.1",
+        "react-test-renderer": "^16.13.1"
+    },
+    "jest": {
+        "setupFiles": [
+            "react-app-polyfill/ie9",
+            "react-app-polyfill/stable",
+            "react-app-polyfill/jsdom"
+        ],
+        "setupFilesAfterEnv": [
+            "<rootDir>/src/setup/setupTests.js"
+        ]
     }
 }

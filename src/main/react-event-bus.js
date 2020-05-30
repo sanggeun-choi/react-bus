@@ -29,7 +29,7 @@ export default (context) => {
         useEffect(() => {
             eventBus.subscribers[subId] = { callback };
 
-            return () => eventBus.subscribers[subId];
+            return () => delete eventBus.subscribers[subId];
         }, [subId, eventBus, callback, ...deps]);
     };
 

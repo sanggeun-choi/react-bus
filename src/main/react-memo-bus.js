@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import lodash from 'lodash';
 import BUS_CONST from './react-bus-consts';
+import useIsMounted from './use-is-mounted';
 
 export default (context) => {
     const memoBus = (getter, stateBusDeps) => {
@@ -18,6 +19,7 @@ export default (context) => {
     const useMemoBus = (memoBus) => {
         const [state, setState] = useState(undefined);
         const subId = useMemo(() => `sub-${context.subId++}`, []);
+        const { isMounted } = useIsMounted();
 
         if (memoBus.type !== BUS_CONST.TYPE.MEMO_BUS) {
             throw Error(`This is not ${BUS_CONST.TYPE.MEMO_BUS} - ${memoBus.type}`);
@@ -28,7 +30,9 @@ export default (context) => {
                 const stateValues = memoBus.stateBusDeps.map((stateBus) => stateBus.get());
                 const result = await memoBus.get(...stateValues);
 
-                setState(result);
+                if (isMounted()) {
+                    setState(result);
+                }
             };
 
             callback();
