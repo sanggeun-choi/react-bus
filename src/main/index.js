@@ -6,6 +6,17 @@ const context = { subId: 0 };
 
 const { stateBus, useStateBusValue, useStateBusSetter, useStateBus } = reactStateBus(context);
 const { eventBus, useEventBusCaller, useEventBusListener } = reactEventBus(context);
-const { memoBus, useMemoBus } = reactMemoBus(context);
+const { memoBus, memoBusAsync, useMemoBus } = reactMemoBus(context);
 
-export { stateBus, useStateBusValue, useStateBusSetter, useStateBus, eventBus, useEventBusCaller, useEventBusListener, memoBus, useMemoBus };
+export {
+    stateBus,
+    useStateBusValue,
+    useStateBusSetter,
+    useStateBus,
+    eventBus,
+    useEventBusCaller,
+    useEventBusListener,
+    memoBus,
+    memoBusAsync,
+    useMemoBus,
+};

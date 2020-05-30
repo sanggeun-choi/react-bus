@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react';
-import { memoBus, stateBus, useMemoBus, useStateBusSetter, useStateBusValue } from '../main';
+import { memoBus, memoBusAsync, stateBus, useMemoBus, useStateBusSetter, useStateBusValue } from '../main';
 
 const setup = (nameBus, numberBus, infoBus) => {
     const renderCount = {
@@ -90,11 +90,31 @@ const setup = (nameBus, numberBus, infoBus) => {
 };
 
 describe('memoBus', () => {
-    it('구독한 컴포넌트만 렌더링', async () => {
+    it('구독한 컴포넌트만 렌더링', () => {
         const nameBus = stateBus('john');
         const numberBus = stateBus(100);
         const infoBus = memoBus((name, number) => `${name} : ${number}`, [nameBus, numberBus]);
-        const { renderCount, getInputName, getDisplayName, getInputNumber, getDisplayNumber, getDisplayInfo } = setup(nameBus, numberBus, infoBus);
+        const { renderCount, getInputName, getInputNumber, getDisplayInfo } = setup(nameBus, numberBus, infoBus);
+
+        expect(getDisplayInfo()).toHaveTextContent('john : 100'), { interval: 1000 };
+        expect(renderCount).toEqual({ inputName: 1, displayName: 1, inputNumber: 1, displayNumber: 1, displayInfo: 1 });
+
+        fireEvent.change(getInputName(), { target: { value: 'tom' } });
+
+        expect(getDisplayInfo()).toHaveTextContent('tom : 100'), { interval: 1000 };
+        expect(renderCount).toEqual({ inputName: 1, displayName: 2, inputNumber: 1, displayNumber: 1, displayInfo: 2 });
+
+        fireEvent.change(getInputNumber(), { target: { value: 200 } });
+
+        expect(getDisplayInfo()).toHaveTextContent('tom : 200'), { interval: 1000 };
+        expect(renderCount).toEqual({ inputName: 1, displayName: 2, inputNumber: 1, displayNumber: 2, displayInfo: 3 });
+    });
+
+    it('구독한 컴포넌트만 렌더링 - Async', async () => {
+        const nameBus = stateBus('john');
+        const numberBus = stateBus(100);
+        const infoBus = memoBusAsync(async (name, number) => `${name} : ${number}`, [nameBus, numberBus]);
+        const { renderCount, getInputName, getInputNumber, getDisplayInfo } = setup(nameBus, numberBus, infoBus);
 
         await waitFor(() => expect(getDisplayInfo()).toHaveTextContent('john : 100'), { interval: 1000 });
         expect(renderCount).toEqual({ inputName: 1, displayName: 1, inputNumber: 1, displayNumber: 1, displayInfo: 2 });

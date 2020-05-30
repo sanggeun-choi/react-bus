@@ -164,14 +164,14 @@ const DisplayInfo = () => {
 };
 ```
 
-### memoBus - useMemoBus (async & await)
+### memoBusAsync - useMemoBus
 ```javascript
 import axios from 'axios';
-import { memoBus, stateBus, useMemoBus, useStateBusSetter } from '@iore8655/react-bus';
+import { memoBusAsync, stateBus, useMemoBus, useStateBusSetter } from '@iore8655/react-bus';
 
 const numberBus = stateBus(0);
 
-const infoBus = memoBus(
+const infoBus = memoBusAsync(
     async (number) => {
         if (number === undefined || number <= 0) {
             return '';
