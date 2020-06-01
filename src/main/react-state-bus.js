@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
+import lodash from 'lodash';
 import BUS_CONST from './react-bus-consts';
 
 export default (context) => {
@@ -10,35 +11,14 @@ export default (context) => {
         };
     };
 
-    const assertStateBus = (stateBus) => {
-        if (stateBus.type !== BUS_CONST.TYPE.STATE_BUS) {
-            throw Error(`This is not ${BUS_CONST.TYPE.STATE_BUS} - ${stateBus.type}`);
-        }
-    };
-
     const useStateBusValue = (stateBus) => {
-        const [state, setState] = useState(stateBus.get());
-        const subId = useMemo(() => `sub-${context.subId++}`, []);
+        const [value] = useStateBusFamily(stateBus);
 
-        assertStateBus(stateBus);
-
-        useEffect(() => {
-            stateBus.subscribers[subId] = { callback: () => setState(stateBus.get()) };
-
-            return () => delete stateBus.subscribers[subId];
-        }, [subId, stateBus]);
-
-        return state;
+        return value;
     };
 
     const useStateBusSetter = (stateBus) => {
-        assertStateBus(stateBus);
-
-        return (value) => {
-            stateBus.get = () => value;
-
-            Object.values(stateBus.subscribers).forEach((subscriber) => subscriber.callback());
-        };
+        return (value) => setStateBusFamily([stateBus, value]);
     };
 
     const useStateBus = (stateBus) => {
@@ -48,5 +28,37 @@ export default (context) => {
         return [state, setState];
     };
 
-    return { stateBus, useStateBusValue, useStateBusSetter, useStateBus };
+    const useStateBusFamily = (...stateBus) => {
+        const [, forceUpdate] = useState({});
+        const subId = useMemo(() => `sub-${context.subId++}`, []);
+
+        useEffect(() => {
+            if (lodash.some(stateBus, (_stateBus) => _stateBus.type !== BUS_CONST.TYPE.STATE_BUS)) {
+                throw Error(`contains invalid type : [${stateBus.map((_stateBus) => _stateBus.type).join(',')}]`);
+            }
+
+            stateBus.forEach((_stateBus) => (_stateBus.subscribers[subId] = { callback: () => forceUpdate({}) }));
+
+            return () => stateBus.forEach((_stateBus) => delete _stateBus.subscribers[subId]);
+        }, [subId, stateBus]);
+
+        return stateBus.map((_stateBus) => _stateBus.get());
+    };
+
+    const setStateBusFamily = (...params) => {
+        if (lodash.some(params, ([_stateBus]) => _stateBus.type !== BUS_CONST.TYPE.STATE_BUS)) {
+            throw Error(`contains invalid type : [${params.map(([_stateBus]) => _stateBus.type).join(',')}]`);
+        }
+
+        let subscribers = {};
+
+        params.forEach(([_stateBus, _value]) => {
+            _stateBus.get = () => _value;
+            subscribers = { ...subscribers, ..._stateBus.subscribers };
+        });
+
+        Object.values(subscribers).forEach((_subscriber) => _subscriber.callback());
+    };
+
+    return { stateBus, useStateBusValue, useStateBusSetter, useStateBus, useStateBusFamily, setStateBusFamily };
 };

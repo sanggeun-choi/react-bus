@@ -1,3 +1,5 @@
+# react-bus
+
 ### install
 ```shell
 npm install @iore8655/react-bus
@@ -7,7 +9,7 @@ yarn add @iore8655/react-bus
 ```
 
 
-### stateBus - useStateBusSetter, useStateBusValue
+### stateBus - 1
 ```javascript
 import { stateBus, useStateBusSetter, useStateBusValue } from '@iore8655/react-bus';
 
@@ -41,7 +43,7 @@ const DisplayName = () => {
 ```
 
 
-### stateBus - useStateBus, useStateBusValue
+### stateBus - 2
 ```javascript
 import { stateBus, useStateBus, useStateBusValue } from '@iore8655/react-bus';
 
@@ -74,8 +76,39 @@ const DisplayName = () => {
 };
 ```
 
+### stateBus - 3
+```javascript
+import { stateBus, useStateBusFamily, setStateBusFamily } from '@iore8655/react-bus';
 
-### eventBus - useEventBusCaller, useEventBusListener
+const nameBus = stateBus('john');
+const isCheckBus = stateBus(true);
+
+const App = () => {
+    return (
+        <div>
+            <ChangeDetails />
+            <DisplayDetails />
+        </div>
+    );
+};
+
+const ChangeDetails = () => {
+    return (
+        <button onClick={() => setStateBusFamily([nameBus, 'tom'], [isCheckBus, false])}>
+            change
+        </button>
+    );
+};
+
+const DisplayDetails = () => {
+    const [name, isCheck] = useStateBusFamily(nameBus, isCheckBus);
+
+    return <div>{name} : {isCheck ? 'Y' : 'N'}</div>;
+};
+```
+
+
+### eventBus
 ```javascript
 import { eventBus, useEventBusCaller, useEventBusListener } from '@iore8655/react-bus';
 
@@ -116,7 +149,7 @@ const DisplayName = () => {
 };
 ```
 
-### memoBus - useMemoBus
+### memoBus
 ```javascript
 import { memoBus, stateBus, useMemoBus, useStateBusSetter } from '@iore8655/react-bus';
 
@@ -164,7 +197,7 @@ const DisplayInfo = () => {
 };
 ```
 
-### memoBusAsync - useMemoBus
+### memoBusAsync
 ```javascript
 import axios from 'axios';
 import { memoBusAsync, stateBus, useMemoBus, useStateBusSetter } from '@iore8655/react-bus';
