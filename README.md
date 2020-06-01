@@ -1,5 +1,6 @@
 # react-bus
 
+
 ### install
 ```shell
 npm install @iore8655/react-bus
@@ -9,7 +10,7 @@ yarn add @iore8655/react-bus
 ```
 
 
-### stateBus - 1
+### stateBus - useStateBusValue, useStateBusSetter
 ```javascript
 import { stateBus, useStateBusSetter, useStateBusValue } from '@iore8655/react-bus';
 
@@ -43,42 +44,9 @@ const DisplayName = () => {
 ```
 
 
-### stateBus - 2
+### stateBus - useStateBus, setStateBus
 ```javascript
-import { stateBus, useStateBus, useStateBusValue } from '@iore8655/react-bus';
-
-const nameBus = stateBus('john');
-
-const StateBusExam = () => {
-    return (
-        <React.Fragment>
-            <InputName />
-            <DisplayName />
-        </React.Fragment>
-    );
-};
-
-const InputName = () => {
-    const [name, setName] = useStateBus(nameBus);
-
-    return (
-        <div>
-            input :
-            <input type={'text'} onChange={(e) => setName(e.target.value)} value={name} />
-        </div>
-    );
-};
-
-const DisplayName = () => {
-    const name = useStateBusValue(nameBus);
-
-    return <div>display : {name}</div>;
-};
-```
-
-### stateBus - 3
-```javascript
-import { stateBus, useStateBusFamily, setStateBusFamily } from '@iore8655/react-bus';
+import { stateBus, useStateBus, setStateBus } from '@iore8655/react-bus';
 
 const nameBus = stateBus('john');
 const isCheckBus = stateBus(true);
@@ -94,14 +62,14 @@ const App = () => {
 
 const ChangeDetails = () => {
     return (
-        <button onClick={() => setStateBusFamily([nameBus, 'tom'], [isCheckBus, false])}>
+        <button onClick={() => setStateBus([nameBus, 'tom'], [isCheckBus, false])}>
             change
         </button>
     );
 };
 
 const DisplayDetails = () => {
-    const [name, isCheck] = useStateBusFamily(nameBus, isCheckBus);
+    const [name, isCheck] = useStateBus(nameBus, isCheckBus);
 
     return <div>{name} : {isCheck ? 'Y' : 'N'}</div>;
 };

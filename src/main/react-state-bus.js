@@ -12,23 +12,16 @@ export default (context) => {
     };
 
     const useStateBusValue = (stateBus) => {
-        const [value] = useStateBusFamily(stateBus);
+        const [value] = useStateBus(stateBus);
 
         return value;
     };
 
     const useStateBusSetter = (stateBus) => {
-        return (value) => setStateBusFamily([stateBus, value]);
+        return (value) => setStateBus([stateBus, value]);
     };
 
-    const useStateBus = (stateBus) => {
-        const state = useStateBusValue(stateBus);
-        const setState = useStateBusSetter(stateBus);
-
-        return [state, setState];
-    };
-
-    const useStateBusFamily = (...stateBus) => {
+    const useStateBus = (...stateBus) => {
         const [, forceUpdate] = useState({});
         const subId = useMemo(() => `sub-${context.subId++}`, []);
 
@@ -45,7 +38,7 @@ export default (context) => {
         return stateBus.map((_stateBus) => _stateBus.get());
     };
 
-    const setStateBusFamily = (...params) => {
+    const setStateBus = (...params) => {
         if (lodash.some(params, ([_stateBus]) => _stateBus.type !== BUS_CONST.TYPE.STATE_BUS)) {
             throw Error(`contains invalid type : [${params.map(([_stateBus]) => _stateBus.type).join(',')}]`);
         }
@@ -60,5 +53,5 @@ export default (context) => {
         Object.values(subscribers).forEach((_subscriber) => _subscriber.callback());
     };
 
-    return { stateBus, useStateBusValue, useStateBusSetter, useStateBus, useStateBusFamily, setStateBusFamily };
+    return { stateBus, useStateBusValue, useStateBusSetter, useStateBus, setStateBus };
 };

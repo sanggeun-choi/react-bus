@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { setStateBusFamily, stateBus, useStateBusFamily, useStateBusSetter, useStateBusValue } from '../main';
+import { setStateBus, stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
 
 const setup = (nameBus) => {
     const renderCount = {
@@ -69,12 +69,7 @@ const setup2 = () => {
         renderCount.app++;
 
         return (
-            <div
-                id={'change-states'}
-                onClick={() => {
-                    setStateBusFamily([nameBus, 'tom'], [isCheckBus, false]);
-                }}
-            >
+            <div id={'change-states'} onClick={() => setStateBus([nameBus, 'tom'], [isCheckBus, false])}>
                 <DisplayName />
                 <DisplayDetails />
             </div>
@@ -90,7 +85,7 @@ const setup2 = () => {
     };
 
     const DisplayDetails = () => {
-        const [name, isCheck] = useStateBusFamily(nameBus, isCheckBus);
+        const [name, isCheck] = useStateBus(nameBus, isCheckBus);
 
         renderCount.displayDetails++;
 
