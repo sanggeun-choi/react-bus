@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { setStateBus, stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
+import { setStateBusFamily, stateBus, useStateBus, useStateBusFamily, useStateBusSetter, useStateBusValue } from '../main';
 
-const setup = (nameBus) => {
+const setup1 = (nameBus) => {
     const renderCount = {
         inputName: 0,
         displayName: 0,
@@ -60,7 +60,59 @@ const setup = (nameBus) => {
     };
 };
 
-const setup2 = () => {
+const setup2 = (nameBus) => {
+    const renderCount = {
+        inputName: 0,
+        displayName: 0,
+        noSubscriber: 0,
+    };
+
+    const App = () => {
+        return (
+            <React.Fragment>
+                <InputName />
+                <DisplayName />
+                <NoSubscriber />
+            </React.Fragment>
+        );
+    };
+
+    const InputName = () => {
+        const [name, setName] = useStateBus(nameBus);
+
+        renderCount.inputName++;
+
+        return (
+            <div>
+                <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} value={name} />
+            </div>
+        );
+    };
+
+    const DisplayName = () => {
+        const name = useStateBusValue(nameBus);
+
+        renderCount.displayName++;
+
+        return <div id={'display'}>{name}</div>;
+    };
+
+    const NoSubscriber = () => {
+        renderCount.noSubscriber++;
+
+        return <div>NoSubscriber</div>;
+    };
+
+    const utils = render(<App />);
+
+    return {
+        renderCount,
+        getInput: () => utils.container.querySelector('#input'),
+        getDisplay: () => utils.container.querySelector('#display'),
+    };
+};
+
+const setup3 = () => {
     const nameBus = stateBus('john');
     const isCheckBus = stateBus(true);
     const renderCount = { app: 0, displayName: 0, displayDetails: 0 };
@@ -69,7 +121,7 @@ const setup2 = () => {
         renderCount.app++;
 
         return (
-            <div id={'change-states'} onClick={() => setStateBus([nameBus, 'tom'], [isCheckBus, false])}>
+            <div id={'change-states'} onClick={() => setStateBusFamily([nameBus, 'tom'], [isCheckBus, false])}>
                 <DisplayName />
                 <DisplayDetails />
             </div>
@@ -85,7 +137,7 @@ const setup2 = () => {
     };
 
     const DisplayDetails = () => {
-        const [name, isCheck] = useStateBus(nameBus, isCheckBus);
+        const [name, isCheck] = useStateBusFamily(nameBus, isCheckBus);
 
         renderCount.displayDetails++;
 
@@ -107,9 +159,9 @@ const setup2 = () => {
 };
 
 describe('stateBus', () => {
-    it('구독한 컴포넌트만 렌더링', () => {
+    it('구독한 컴포넌트만 렌더링 - useStateBusValue, useStateBusSetter', () => {
         const nameBus = stateBus('john');
-        const { renderCount, getInput, getDisplay } = setup(nameBus);
+        const { renderCount, getInput, getDisplay } = setup1(nameBus);
 
         expect(getDisplay()).toHaveTextContent('john');
         expect(renderCount).toEqual({ inputName: 1, displayName: 1, noSubscriber: 1 });
@@ -121,9 +173,23 @@ describe('stateBus', () => {
         expect(renderCount).toEqual({ inputName: 1, displayName: 3, noSubscriber: 1 });
     });
 
+    it('구독한 컴포넌트만 렌더링 - useStateBus', () => {
+        const nameBus = stateBus('john');
+        const { renderCount, getInput, getDisplay } = setup2(nameBus);
+
+        expect(getDisplay()).toHaveTextContent('john');
+        expect(renderCount).toEqual({ inputName: 1, displayName: 1, noSubscriber: 1 });
+
+        fireEvent.change(getInput(), { target: { value: 'test-1' } });
+        fireEvent.change(getInput(), { target: { value: 'test-2' } });
+
+        expect(getDisplay()).toHaveTextContent('test-2');
+        expect(renderCount).toEqual({ inputName: 3, displayName: 3, noSubscriber: 1 });
+    });
+
     it('컴포넌트에서 useStateBusValue 사용시 구독 등록, 컴포넌트 unmount시 구독 해제', () => {
         const nameBus = stateBus('john');
-        const { getDisplay, getToggle } = setup(nameBus);
+        const { getDisplay, getToggle } = setup1(nameBus);
 
         expect(getDisplay()).toBeTruthy();
         expect(Object.values(nameBus.subscribers).length).toEqual(1);
@@ -140,7 +206,7 @@ describe('stateBus', () => {
     });
 
     it('useStateBusFamily, setStateBusFamily로 다중 stateBus 세팅시 한 번만 렌더링 되어야함', () => {
-        const { renderCount, getChangeStates, getDisplayName, getDisplayDetails } = setup2();
+        const { renderCount, getChangeStates, getDisplayName, getDisplayDetails } = setup3();
 
         expect(getDisplayName()).toHaveTextContent('john');
         expect(getDisplayDetails()).toHaveTextContent('john : Y');

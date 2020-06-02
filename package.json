@@ -1,9 +1,9 @@
 {
     "name": "@iore8655/react-bus",
-    "version": "0.0.6",
+    "version": "0.0.7",
     "author": "sanggeun-choi",
     "homepage": "https://github.com/sanggeun-choi/react-bus",
-    "description": "",
+    "description": "@iore8655/react-bus is a global state management",
     "keywords": [
         "react",
         "state",

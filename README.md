@@ -10,9 +10,9 @@ yarn add @iore8655/react-bus
 ```
 
 
-### stateBus - useStateBusValue, useStateBusSetter
+### stateBus - useStateBus, useStateBusValue, useStateBusSetter
 ```javascript
-import { stateBus, useStateBusSetter, useStateBusValue } from '@iore8655/react-bus';
+import { stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '@iore8655/react-bus';
 
 const nameBus = stateBus('');
 
@@ -27,6 +27,7 @@ const StateBusExam = () => {
 
 const InputName = () => {
     const setName = useStateBusSetter(nameBus);
+    // const [name, setName] = useStateBus(nameBus);   // useStateBus = useStateBusValue + useStateBusSetter
 
     return (
         <div>
@@ -44,9 +45,9 @@ const DisplayName = () => {
 ```
 
 
-### stateBus - useStateBus, setStateBus
+### stateBus - useStateBusFamily, setStateBusFamily
 ```javascript
-import { stateBus, useStateBus, setStateBus } from '@iore8655/react-bus';
+import { stateBus, useStateBusFamily, setStateBusFamily } from '@iore8655/react-bus';
 
 const nameBus = stateBus('john');
 const isCheckBus = stateBus(true);
@@ -62,14 +63,14 @@ const App = () => {
 
 const ChangeDetails = () => {
     return (
-        <button onClick={() => setStateBus([nameBus, 'tom'], [isCheckBus, false])}>
+        <button onClick={() => setStateBusFamily([nameBus, 'tom'], [isCheckBus, false])}>
             change
         </button>
     );
 };
 
 const DisplayDetails = () => {
-    const [name, isCheck] = useStateBus(nameBus, isCheckBus);
+    const [name, isCheck] = useStateBusFamily(nameBus, isCheckBus);
 
     return <div>{name} : {isCheck ? 'Y' : 'N'}</div>;
 };
