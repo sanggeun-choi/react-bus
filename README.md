@@ -1,4 +1,5 @@
 # react-bus
+- render only subscribers
 
 
 ### install
@@ -10,7 +11,7 @@ yarn add @iore8655/react-bus
 ```
 
 
-### stateBus - useStateBus, useStateBusValue, useStateBusSetter
+### stateBus
 ```javascript
 import { stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '@iore8655/react-bus';
 
@@ -41,38 +42,6 @@ const DisplayName = () => {
     const name = useStateBusValue(nameBus);
 
     return <div>display : {name}</div>;
-};
-```
-
-
-### stateBus - useStateBusFamily, setStateBusFamily
-```javascript
-import { stateBus, useStateBusFamily, setStateBusFamily } from '@iore8655/react-bus';
-
-const nameBus = stateBus('john');
-const isCheckBus = stateBus(true);
-
-const App = () => {
-    return (
-        <div>
-            <ChangeDetails />
-            <DisplayDetails />
-        </div>
-    );
-};
-
-const ChangeDetails = () => {
-    return (
-        <button onClick={() => setStateBusFamily([nameBus, 'tom'], [isCheckBus, false])}>
-            change
-        </button>
-    );
-};
-
-const DisplayDetails = () => {
-    const [name, isCheck] = useStateBusFamily(nameBus, isCheckBus);
-
-    return <div>{name} : {isCheck ? 'Y' : 'N'}</div>;
 };
 ```
 

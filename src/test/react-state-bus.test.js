@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { setStateBusFamily, stateBus, useStateBus, useStateBusFamily, useStateBusSetter, useStateBusValue } from '../main';
+import { stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
 
 const setup1 = (nameBus) => {
     const renderCount = {
@@ -203,19 +203,5 @@ describe('stateBus', () => {
 
         expect(getDisplay()).toBeTruthy();
         expect(Object.values(nameBus.subscribers).length).toEqual(1);
-    });
-
-    it('useStateBusFamily, setStateBusFamily로 다중 stateBus 세팅시 한 번만 렌더링 되어야함', () => {
-        const { renderCount, getChangeStates, getDisplayName, getDisplayDetails } = setup3();
-
-        expect(getDisplayName()).toHaveTextContent('john');
-        expect(getDisplayDetails()).toHaveTextContent('john : Y');
-        expect(renderCount).toEqual({ app: 1, displayName: 1, displayDetails: 1 });
-
-        fireEvent.click(getChangeStates());
-
-        expect(getDisplayName()).toHaveTextContent('tom');
-        expect(getDisplayDetails()).toHaveTextContent('tom : N');
-        expect(renderCount).toEqual({ app: 1, displayName: 2, displayDetails: 2 });
     });
 });
