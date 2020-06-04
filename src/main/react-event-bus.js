@@ -1,7 +1,13 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import BUS_CONST from './react-bus-consts';
 
 export default (context) => {
+    const assertEventBus = (eventBus) => {
+        if (eventBus.type !== BUS_CONST.TYPE.EVENT_BUS) {
+            throw Error(`This is not ${BUS_CONST.TYPE.EVENT_BUS} - ${eventBus.type}`);
+        }
+    };
+
     const eventBus = () => {
         return {
             type: BUS_CONST.TYPE.EVENT_BUS,
@@ -9,28 +15,29 @@ export default (context) => {
         };
     };
 
-    const assertEventBus = (eventBus) => {
-        if (eventBus.type !== BUS_CONST.TYPE.EVENT_BUS) {
-            throw Error(`This is not ${BUS_CONST.TYPE.EVENT_BUS} - ${eventBus.type}`);
-        }
-    };
-
     const useEventBusCaller = (eventBus) => {
-        assertEventBus(eventBus);
+        useEffect(() => {
+            assertEventBus(eventBus);
+        }, [assertEventBus, eventBus]);
 
-        return (...params) => Object.values(eventBus.subscribers).forEach((subscriber) => subscriber.callback(...params));
+        return useCallback(
+            (...params) => {
+                return Object.values(eventBus.subscribers).forEach((subscriber) => subscriber.callback(...params));
+            },
+            [eventBus],
+        );
     };
 
     const useEventBusListener = (eventBus, callback, deps) => {
         const subId = useMemo(() => `sub-${context.subId++}`, []);
 
-        assertEventBus(eventBus);
-
         useEffect(() => {
+            assertEventBus(eventBus);
+
             eventBus.subscribers[subId] = { callback };
 
             return () => delete eventBus.subscribers[subId];
-        }, [subId, eventBus, callback, ...deps]);
+        }, [assertEventBus, eventBus, subId, callback, ...deps]);
     };
 
     return { eventBus, useEventBusCaller, useEventBusListener };

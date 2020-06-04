@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fireEvent, render, waitFor } from '@testing-library/react';
 import { memoBus, memoBusAsync, stateBus, useMemoBus, useStateBusSetter, useStateBusValue } from '../main';
 
@@ -89,6 +89,31 @@ const setup = (nameBus, numberBus, infoBus) => {
     };
 };
 
+const setup2 = (infoBus) => {
+    const renderCount = { app: 0 };
+
+    const App = () => {
+        const [, forceUpdate] = useState({});
+        const info = useMemoBus(infoBus);
+
+        useEffect(() => {
+            renderCount.app++;
+
+            if (renderCount.app > 2) {
+                return;
+            }
+
+            forceUpdate({});
+        }, [info]);
+
+        return <React.Fragment />;
+    };
+
+    const utils = render(<App />);
+
+    return { renderCount };
+};
+
 describe('memoBus', () => {
     it('구독한 컴포넌트만 렌더링', () => {
         const nameBus = stateBus('john');
@@ -151,5 +176,17 @@ describe('memoBus', () => {
         expect(getDisplayInfo()).toBeTruthy();
         expect(Object.values(nameBus.subscribers).length).toEqual(2);
         expect(Object.values(numberBus.subscribers).length).toEqual(2);
+    });
+
+    it('올바르게 memoize 처리되는지 확인', () => {
+        const nameBus = stateBus('john');
+        const numberBus = stateBus(100);
+        const infoBus = memoBus((name, number) => `${name} : ${number}`, [nameBus, numberBus]);
+        const asyncInfoBus = memoBusAsync(async (name, number) => await `${name} : ${number}`, [nameBus, numberBus]);
+        const { renderCount: renderCount1 } = setup2(infoBus);
+        const { renderCount: renderCount2 } = setup2(asyncInfoBus);
+
+        expect(renderCount1.app).toEqual(1);
+        expect(renderCount2.app).toEqual(1);
     });
 });

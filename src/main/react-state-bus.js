@@ -26,7 +26,7 @@ export default (context) => {
             stateBus.subscribers[subId] = { callback: () => forceUpdate({}) };
 
             return () => delete stateBus.subscribers[subId];
-        }, [subId, stateBus, assertStateBus]);
+        }, [assertStateBus, stateBus, subId]);
 
         return stateBus.get();
     };

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { eventBus, useEventBusCaller, useEventBusListener } from '../main';
 
@@ -94,6 +94,31 @@ const setup = (changeNameBus, changeNumberBus) => {
     };
 };
 
+const setup2 = (changeNameBus) => {
+    const renderCount = { app: 0 };
+
+    const App = () => {
+        const [, forceUpdate] = useState({});
+        const changeName = useEventBusCaller(changeNameBus);
+
+        useEffect(() => {
+            renderCount.app++;
+
+            if (renderCount.app > 2) {
+                return;
+            }
+
+            forceUpdate({});
+        }, [changeName]);
+
+        return <React.Fragment />;
+    };
+
+    const utils = render(<App />);
+
+    return { renderCount };
+};
+
 describe('eventBus', () => {
     it('구독한 컴포넌트만 이벤트 수신', () => {
         const changeNameBus = eventBus();
@@ -137,5 +162,12 @@ describe('eventBus', () => {
         expect(getDisplayName()).toBeTruthy();
         expect(Object.values(changeNameBus.subscribers).length).toEqual(1);
         expect(Object.values(changeNumberBus.subscribers).length).toEqual(1);
+    });
+
+    it('올바르게 memoize 처리되는지 확인', () => {
+        const changeNameBus = eventBus();
+        const { renderCount } = setup2(changeNameBus);
+
+        expect(renderCount.app).toEqual(1);
     });
 });

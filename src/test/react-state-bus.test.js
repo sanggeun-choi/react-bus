@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
 
@@ -112,50 +112,29 @@ const setup2 = (nameBus) => {
     };
 };
 
-const setup3 = () => {
-    const nameBus = stateBus('john');
-    const isCheckBus = stateBus(true);
-    const renderCount = { app: 0, displayName: 0, displayDetails: 0 };
+const setup3 = (nameBus) => {
+    const renderCount = { app: 0 };
 
     const App = () => {
-        renderCount.app++;
+        const [, forceUpdate] = useState({});
+        const [name, setName] = useStateBus(nameBus);
 
-        return (
-            <div id={'change-states'} onClick={() => setStateBusFamily([nameBus, 'tom'], [isCheckBus, false])}>
-                <DisplayName />
-                <DisplayDetails />
-            </div>
-        );
-    };
+        useEffect(() => {
+            renderCount.app++;
 
-    const DisplayName = () => {
-        const name = useStateBusValue(nameBus);
+            if (renderCount.app > 2) {
+                return;
+            }
 
-        renderCount.displayName++;
+            forceUpdate({});
+        }, [name, setName]);
 
-        return <div id={'display-name'}>{name}</div>;
-    };
-
-    const DisplayDetails = () => {
-        const [name, isCheck] = useStateBusFamily(nameBus, isCheckBus);
-
-        renderCount.displayDetails++;
-
-        return (
-            <div id={'display-details'}>
-                {name} : {isCheck ? 'Y' : 'N'}
-            </div>
-        );
+        return <React.Fragment />;
     };
 
     const utils = render(<App />);
 
-    return {
-        renderCount,
-        getChangeStates: () => utils.container.querySelector('#change-states'),
-        getDisplayName: () => utils.container.querySelector('#display-name'),
-        getDisplayDetails: () => utils.container.querySelector('#display-details'),
-    };
+    return { renderCount };
 };
 
 describe('stateBus', () => {
@@ -203,5 +182,12 @@ describe('stateBus', () => {
 
         expect(getDisplay()).toBeTruthy();
         expect(Object.values(nameBus.subscribers).length).toEqual(1);
+    });
+
+    it('올바르게 memoize 처리되는지 확인', () => {
+        const nameBus = stateBus('john');
+        const { renderCount } = setup3(nameBus);
+
+        expect(renderCount.app).toEqual(1);
     });
 });

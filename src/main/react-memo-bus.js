@@ -44,9 +44,9 @@ export default (context) => {
         const [state, setState] = useState(memoBus.get(...memoBus.stateBusDeps.map((stateBus) => stateBus.get())));
         const subId = useMemo(() => `sub-${context.subId++}`, []);
 
-        assertMemoBus(memoBus);
-
         useEffect(() => {
+            assertMemoBus(memoBus);
+
             const callback = () => {
                 const result = memoBus.get(...memoBus.stateBusDeps.map((stateBus) => stateBus.get()));
 
@@ -56,7 +56,7 @@ export default (context) => {
             memoBus.stateBusDeps.forEach((stateBus) => (stateBus.subscribers[subId] = { callback }));
 
             return () => memoBus.stateBusDeps.forEach((stateBus) => delete stateBus.subscribers[subId]);
-        }, [subId, memoBus]);
+        }, [assertMemoBus, memoBus, subId]);
 
         return state;
     };
@@ -66,9 +66,9 @@ export default (context) => {
         const subId = useMemo(() => `sub-${context.subId++}`, []);
         const { isMounted } = useIsMounted();
 
-        assertMemoBus(memoBus);
-
         useEffect(() => {
+            assertMemoBus(memoBus);
+
             const callback = async () => {
                 const result = await memoBus.get(...memoBus.stateBusDeps.map((stateBus) => stateBus.get()));
 
@@ -82,7 +82,7 @@ export default (context) => {
             memoBus.stateBusDeps.forEach((stateBus) => (stateBus.subscribers[subId] = { callback }));
 
             return () => memoBus.stateBusDeps.forEach((stateBus) => delete stateBus.subscribers[subId]);
-        }, [subId, memoBus]);
+        }, [assertMemoBus, memoBus, subId]);
 
         return state;
     };
