@@ -2,12 +2,103 @@ import React, { useEffect, useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
 
-const setup1 = (nameBus) => {
-    const renderCount = {
-        inputName: 0,
-        displayName: 0,
-        noSubscriber: 0,
+const setupGlobalStateBus = () => {
+    const nameBus = stateBus('john');
+    const renderCount = { app: 0, display: 0, input: 0, noSubscriber: 0 };
+
+    const App = () => {
+        renderCount.app++;
+
+        return (
+            <React.Fragment>
+                <Display />
+                <Input />
+                <NoSubscriber />
+            </React.Fragment>
+        );
     };
+
+    const Display = () => {
+        const name = useStateBusValue(nameBus);
+
+        renderCount.display++;
+
+        return <div id={'display'}>{name}</div>;
+    };
+
+    const Input = () => {
+        const setName = useStateBusSetter(nameBus);
+
+        renderCount.input++;
+
+        return <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} />;
+    };
+
+    const NoSubscriber = () => {
+        renderCount.noSubscriber++;
+
+        return <React.Fragment />;
+    };
+
+    const { container } = render(<App />);
+
+    return {
+        renderCount,
+        getDisplay: () => container.querySelector('#display'),
+        getInput: () => container.querySelector('#input'),
+    };
+};
+
+const setupLocalStateBus = () => {
+    const renderCount = { app: 0, display: 0, input: 0, noSubscriber: 0 };
+
+    const App = () => {
+        const nameBus = useStateBus('john');
+
+        renderCount.app++;
+
+        return (
+            <React.Fragment>
+                <Display nameBus={nameBus} />
+                <Input nameBus={nameBus} />
+                <NoSubscriber />
+            </React.Fragment>
+        );
+    };
+
+    const Display = ({ nameBus }) => {
+        const name = useStateBusValue(nameBus);
+
+        renderCount.display++;
+
+        return <div id={'display'}>{name}</div>;
+    };
+
+    const Input = ({ nameBus }) => {
+        const setName = useStateBusSetter(nameBus);
+
+        renderCount.input++;
+
+        return <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} />;
+    };
+
+    const NoSubscriber = () => {
+        renderCount.noSubscriber++;
+
+        return <React.Fragment />;
+    };
+
+    const { container } = render(<App />);
+
+    return {
+        renderCount,
+        getDisplay: () => container.querySelector('#display'),
+        getInput: () => container.querySelector('#input'),
+    };
+};
+
+const setupSubscriberAndUnsubscribe = () => {
+    const nameBus = stateBus('john');
 
     const App = () => {
         const [toggle, setToggle] = useState(true);
@@ -17,176 +108,100 @@ const setup1 = (nameBus) => {
                 <button id={'toggle'} onClick={() => setToggle(!toggle)}>
                     toggle
                 </button>
-                {toggle && <DisplayName />}
-                <InputName />
-                <NoSubscriber />
+                {toggle && <Display />}
             </React.Fragment>
         );
     };
 
-    const InputName = () => {
-        const setName = useStateBusSetter(nameBus);
-
-        renderCount.inputName++;
-
-        return (
-            <div>
-                <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} />
-            </div>
-        );
-    };
-
-    const DisplayName = () => {
+    const Display = () => {
         const name = useStateBusValue(nameBus);
-
-        renderCount.displayName++;
 
         return <div id={'display'}>{name}</div>;
     };
 
-    const NoSubscriber = () => {
-        renderCount.noSubscriber++;
-
-        return <div>NoSubscriber</div>;
-    };
-
-    const utils = render(<App />);
+    const { container } = render(<App />);
 
     return {
-        renderCount,
-        getInput: () => utils.container.querySelector('#input'),
-        getDisplay: () => utils.container.querySelector('#display'),
-        getToggle: () => utils.container.querySelector('#toggle'),
+        nameBus,
+        getToggle: () => container.querySelector('#toggle'),
+        getDisplay: () => container.querySelector('#display'),
     };
 };
 
-const setup2 = (nameBus) => {
-    const renderCount = {
-        inputName: 0,
-        displayName: 0,
-        noSubscriber: 0,
-    };
-
-    const App = () => {
-        return (
-            <React.Fragment>
-                <InputName />
-                <DisplayName />
-                <NoSubscriber />
-            </React.Fragment>
-        );
-    };
-
-    const InputName = () => {
-        const [name, setName] = useStateBus(nameBus);
-
-        renderCount.inputName++;
-
-        return (
-            <div>
-                <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} value={name} />
-            </div>
-        );
-    };
-
-    const DisplayName = () => {
-        const name = useStateBusValue(nameBus);
-
-        renderCount.displayName++;
-
-        return <div id={'display'}>{name}</div>;
-    };
-
-    const NoSubscriber = () => {
-        renderCount.noSubscriber++;
-
-        return <div>NoSubscriber</div>;
-    };
-
-    const utils = render(<App />);
-
-    return {
-        renderCount,
-        getInput: () => utils.container.querySelector('#input'),
-        getDisplay: () => utils.container.querySelector('#display'),
-    };
-};
-
-const setup3 = (nameBus) => {
+const setupMemoization = () => {
+    const globalNameBus = stateBus('john');
     const renderCount = { app: 0 };
 
     const App = () => {
         const [, forceUpdate] = useState({});
-        const [name, setName] = useStateBus(nameBus);
+        const name = useStateBusValue(globalNameBus);
+        const setName = useStateBusSetter(globalNameBus);
+        const localNameBus = useStateBus('tom');
 
         useEffect(() => {
             renderCount.app++;
 
-            if (renderCount.app > 2) {
+            if (renderCount.app > 1) {
                 return;
             }
 
             forceUpdate({});
-        }, [name, setName]);
+        }, [name, setName, localNameBus, globalNameBus]);
 
         return <React.Fragment />;
     };
 
-    const utils = render(<App />);
+    const { container } = render(<App />);
 
     return { renderCount };
 };
 
 describe('stateBus', () => {
-    it('구독한 컴포넌트만 렌더링 - useStateBusValue, useStateBusSetter', () => {
-        const nameBus = stateBus('john');
-        const { renderCount, getInput, getDisplay } = setup1(nameBus);
+    it('구독한 컴포넌트만 렌더링 - global', () => {
+        const { renderCount, getInput, getDisplay } = setupGlobalStateBus();
 
         expect(getDisplay()).toHaveTextContent('john');
-        expect(renderCount).toEqual({ inputName: 1, displayName: 1, noSubscriber: 1 });
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 1, noSubscriber: 1 });
 
         fireEvent.change(getInput(), { target: { value: 'test-1' } });
         fireEvent.change(getInput(), { target: { value: 'test-2' } });
 
         expect(getDisplay()).toHaveTextContent('test-2');
-        expect(renderCount).toEqual({ inputName: 1, displayName: 3, noSubscriber: 1 });
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 3, noSubscriber: 1 });
     });
 
-    it('구독한 컴포넌트만 렌더링 - useStateBus', () => {
-        const nameBus = stateBus('john');
-        const { renderCount, getInput, getDisplay } = setup2(nameBus);
+    it('구독한 컴포넌트만 렌더링 - local', () => {
+        const { renderCount, getInput, getDisplay } = setupLocalStateBus();
 
         expect(getDisplay()).toHaveTextContent('john');
-        expect(renderCount).toEqual({ inputName: 1, displayName: 1, noSubscriber: 1 });
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 1, noSubscriber: 1 });
 
         fireEvent.change(getInput(), { target: { value: 'test-1' } });
         fireEvent.change(getInput(), { target: { value: 'test-2' } });
 
         expect(getDisplay()).toHaveTextContent('test-2');
-        expect(renderCount).toEqual({ inputName: 3, displayName: 3, noSubscriber: 1 });
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 3, noSubscriber: 1 });
     });
 
     it('컴포넌트에서 useStateBusValue 사용시 구독 등록, 컴포넌트 unmount시 구독 해제', () => {
-        const nameBus = stateBus('john');
-        const { getDisplay, getToggle } = setup1(nameBus);
+        const { nameBus, getDisplay, getToggle } = setupSubscriberAndUnsubscribe();
 
-        expect(getDisplay()).toBeTruthy();
+        expect(getDisplay()).toBeInTheDocument();
         expect(Object.values(nameBus.subscribers).length).toEqual(1);
 
         fireEvent.click(getToggle());
 
-        expect(getDisplay()).not.toBeTruthy();
+        expect(getDisplay()).not.toBeInTheDocument();
         expect(Object.values(nameBus.subscribers).length).toEqual(0);
 
         fireEvent.click(getToggle());
 
-        expect(getDisplay()).toBeTruthy();
+        expect(getDisplay()).toBeInTheDocument();
         expect(Object.values(nameBus.subscribers).length).toEqual(1);
     });
 
     it('올바르게 memoize 처리되는지 확인', () => {
-        const nameBus = stateBus('john');
-        const { renderCount } = setup3(nameBus);
+        const { renderCount } = setupMemoization();
 
         expect(renderCount.app).toEqual(1);
     });

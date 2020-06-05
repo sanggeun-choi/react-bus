@@ -13,11 +13,21 @@ yarn add @iore8655/react-bus
 
 ### stateBus
 ```javascript
-import { stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '@iore8655/react-bus';
+import React from 'react';
+import {
+    stateBus,
+    useStateBus,
+    useStateBusSetter,
+    useStateBusValue,
+} from '@iore8655/react-bus';
 
+// global
 const nameBus = stateBus('');
 
 const StateBusExam = () => {
+    // local
+    // const nameBus = useStateBus('');
+
     return (
         <React.Fragment>
             <InputName />
@@ -28,7 +38,6 @@ const StateBusExam = () => {
 
 const InputName = () => {
     const setName = useStateBusSetter(nameBus);
-    // const [name, setName] = useStateBus(nameBus);   // useStateBus = useStateBusValue + useStateBusSetter
 
     return (
         <div>
@@ -43,10 +52,12 @@ const DisplayName = () => {
 
     return <div>display : {name}</div>;
 };
+
 ```
 
 ### stateBusFamily
 ```javascript
+import React from 'react';
 import {
     stateBusFamily,
     useStateBusFamily,
@@ -56,22 +67,22 @@ import {
 } from '@iore8655/react-bus';
 
 // global
-// const userBusFamily = stateBusFamily({
-//     name: 'john',
-//     number: 100,
-// });
+const userBusFamily = stateBusFamily({
+    name: 'john',
+    number: 100,
+});
 
 const StateBusFamilyExam = () => {
     // local
-    const userBusFamily = useStateBusFamily({
-        name: 'john',
-        number: 100,
-    });
+    // const userBusFamily = useStateBusFamily({
+    //     name: 'john',
+    //     number: 100,
+    // });
 
     return (
         <React.Fragment>
-            <InputName userBusFamily={userBusFamily} />
-            <DisplayName userBusFamily={userBusFamily} />
+            <InputName />
+            <DisplayName />
             <button
                 onClick={() => {
                     const { name, number } = getStateBusFamilyValues(userBusFamily);
@@ -84,7 +95,7 @@ const StateBusFamilyExam = () => {
     );
 };
 
-const InputName = ({ userBusFamily }) => {
+const InputName = () => {
     const setName = useStateBusSetter(userBusFamily.name);
 
     return (
@@ -95,7 +106,7 @@ const InputName = ({ userBusFamily }) => {
     );
 };
 
-const DisplayName = ({ userBusFamily }) => {
+const DisplayName = () => {
     const name = useStateBusValue(userBusFamily.name);
 
     return <div>display : {name}</div>;

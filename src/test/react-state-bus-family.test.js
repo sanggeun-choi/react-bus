@@ -2,57 +2,46 @@ import React, { useEffect, useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
 import { getStateBusFamilyValues, stateBusFamily, useStateBusFamily, useStateBusSetter, useStateBusValue } from '../main';
 
-const setup = () => {
-    const renderCount = { displayName: 0, inputName: 0, noSubscriber: 0 };
+const setupGlobalStateBusFamily = () => {
+    const renderCount = { app: 0, input: 0, display: 0, noSubscriber: 0 };
     const context = { values: {} };
+    const userBusFamily = stateBusFamily({ name: 'john', number: 100 });
 
     const App = () => {
-        const userBusFamily = useStateBusFamily({
-            name: 'john',
-            number: 100,
-        });
+        renderCount.app++;
 
         return (
             <React.Fragment>
-                <button
-                    id={'values-button'}
-                    onClick={() => {
-                        context.values = getStateBusFamilyValues(userBusFamily);
-                    }}
-                >
+                <button id={'values'} onClick={() => (context.values = getStateBusFamilyValues(userBusFamily))}>
                     get values
                 </button>
-                <DisplayName renderCount={renderCount} userBusFamily={userBusFamily} />
-                <InputName renderCount={renderCount} userBusFamily={userBusFamily} />
-                <NoSubscriber renderCount={renderCount} />
+                <Display />
+                <Input />
+                <NoSubscriber />
             </React.Fragment>
         );
     };
 
-    const DisplayName = ({ renderCount, userBusFamily }) => {
+    const Display = () => {
         const name = useStateBusValue(userBusFamily.name);
 
-        renderCount.displayName++;
+        renderCount.display++;
 
-        return <div id={'display-name'}>{name}</div>;
+        return <div id={'display'}>{name}</div>;
     };
 
-    const InputName = ({ renderCount, userBusFamily }) => {
+    const Input = () => {
         const setName = useStateBusSetter(userBusFamily.name);
 
-        renderCount.inputName++;
+        renderCount.input++;
 
-        return (
-            <div>
-                <input id={'input-name'} type={'text'} onChange={(e) => setName(e.target.value)} />
-            </div>
-        );
+        return <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} />;
     };
 
-    const NoSubscriber = ({ renderCount }) => {
+    const NoSubscriber = () => {
         renderCount.noSubscriber++;
 
-        return <div>NoSubscriber</div>;
+        return <React.Fragment />;
     };
 
     const { container } = render(<App />);
@@ -60,18 +49,76 @@ const setup = () => {
     return {
         renderCount,
         context,
-        getValuesButton: () => container.querySelector('#values-button'),
-        getInputName: () => container.querySelector('#input-name'),
-        getDisplayName: () => container.querySelector('#display-name'),
+        getDisplay: () => container.querySelector('#display'),
+        getInput: () => container.querySelector('#input'),
+        getValues: () => container.querySelector('#values'),
     };
 };
 
-const setup2 = () => {
+const setupLocalStateBusFamily = () => {
+    const renderCount = { app: 0, input: 0, display: 0, noSubscriber: 0 };
+    const context = { values: {} };
+
+    const App = () => {
+        const userBusFamily = useStateBusFamily({ name: 'john', number: 100 });
+
+        renderCount.app++;
+
+        return (
+            <React.Fragment>
+                <button id={'values'} onClick={() => (context.values = getStateBusFamilyValues(userBusFamily))}>
+                    get values
+                </button>
+                <Display userBusFamily={userBusFamily} />
+                <Input userBusFamily={userBusFamily} />
+                <NoSubscriber />
+            </React.Fragment>
+        );
+    };
+
+    const Display = ({ userBusFamily }) => {
+        const name = useStateBusValue(userBusFamily.name);
+
+        renderCount.display++;
+
+        return <div id={'display'}>{name}</div>;
+    };
+
+    const Input = ({ userBusFamily }) => {
+        const setName = useStateBusSetter(userBusFamily.name);
+
+        renderCount.input++;
+
+        return <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} />;
+    };
+
+    const NoSubscriber = () => {
+        renderCount.noSubscriber++;
+
+        return <React.Fragment />;
+    };
+
+    const { container } = render(<App />);
+
+    return {
+        renderCount,
+        context,
+        getDisplay: () => container.querySelector('#display'),
+        getInput: () => container.querySelector('#input'),
+        getValues: () => container.querySelector('#values'),
+    };
+};
+
+const setupMemoization = () => {
     const renderCount = { app: 0 };
+    const globalBusFamily = stateBusFamily({
+        name: 'john',
+        number: 100,
+    });
 
     const App = () => {
         const [, forceUpdate] = useState({});
-        const userBusFamily = useStateBusFamily({
+        const localBusFamily = useStateBusFamily({
             name: 'john',
             number: 100,
         });
@@ -79,39 +126,54 @@ const setup2 = () => {
         useEffect(() => {
             renderCount.app++;
 
-            if (renderCount.app > 2) {
+            if (renderCount.app > 1) {
                 return;
             }
 
             forceUpdate({});
-        }, [userBusFamily, getStateBusFamilyValues]);
+        }, [globalBusFamily, localBusFamily, getStateBusFamilyValues]);
 
         return <React.Fragment />;
     };
 
-    render(<App />);
+    const { container } = render(<App />);
 
     return { renderCount };
 };
 
 describe('stateBusFamily', () => {
-    it('구독한 컴포넌트만 렌더링', () => {
-        const { renderCount, context, getValuesButton, getInputName, getDisplayName } = setup();
+    it('구독한 컴포넌트만 렌더링 - global', () => {
+        const { renderCount, context, getDisplay, getInput, getValues } = setupGlobalStateBusFamily();
 
-        expect(getDisplayName()).toHaveTextContent('john');
-        expect(renderCount).toEqual({ inputName: 1, displayName: 1, noSubscriber: 1 });
+        expect(getDisplay()).toHaveTextContent('john');
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 1, noSubscriber: 1 });
 
-        fireEvent.change(getInputName(), { target: { value: 'test-1' } });
-        fireEvent.change(getInputName(), { target: { value: 'test-2' } });
-        fireEvent.click(getValuesButton());
+        fireEvent.change(getInput(), { target: { value: 'test-1' } });
+        fireEvent.change(getInput(), { target: { value: 'test-2' } });
+        fireEvent.click(getValues());
 
-        expect(getDisplayName()).toHaveTextContent('test-2');
-        expect(renderCount).toEqual({ inputName: 1, displayName: 3, noSubscriber: 1 });
+        expect(getDisplay()).toHaveTextContent('test-2');
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 3, noSubscriber: 1 });
+        expect(context.values).toEqual({ name: 'test-2', number: 100 });
+    });
+
+    it('구독한 컴포넌트만 렌더링 - local', () => {
+        const { renderCount, context, getDisplay, getInput, getValues } = setupLocalStateBusFamily();
+
+        expect(getDisplay()).toHaveTextContent('john');
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 1, noSubscriber: 1 });
+
+        fireEvent.change(getInput(), { target: { value: 'test-1' } });
+        fireEvent.change(getInput(), { target: { value: 'test-2' } });
+        fireEvent.click(getValues());
+
+        expect(getDisplay()).toHaveTextContent('test-2');
+        expect(renderCount).toEqual({ app: 1, input: 1, display: 3, noSubscriber: 1 });
         expect(context.values).toEqual({ name: 'test-2', number: 100 });
     });
 
     it('올바르게 memoize 처리되는지 확인', () => {
-        const { renderCount } = setup2();
+        const { renderCount } = setupMemoization();
 
         expect(renderCount.app).toEqual(1);
     });

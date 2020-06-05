@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import BUS_CONST from './react-bus-consts';
 
 export default (context) => {
@@ -8,12 +8,16 @@ export default (context) => {
         }
     };
 
-    const stateBus = (value) => {
+    const stateBus = (defaultValue) => {
         return {
             type: BUS_CONST.TYPE.STATE_BUS,
             subscribers: {},
-            get: () => value,
+            get: () => defaultValue,
         };
+    };
+
+    const useStateBus = (defaultValue) => {
+        return useRef(stateBus(defaultValue)).current;
     };
 
     const useStateBusValue = (stateBus) => {
@@ -46,12 +50,5 @@ export default (context) => {
         );
     };
 
-    const useStateBus = (stateBus) => {
-        const state = useStateBusValue(stateBus);
-        const setState = useStateBusSetter(stateBus);
-
-        return [state, setState];
-    };
-
-    return { stateBus, useStateBusValue, useStateBusSetter, useStateBus };
+    return { stateBus, useStateBus, useStateBusValue, useStateBusSetter };
 };
