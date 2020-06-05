@@ -45,6 +45,63 @@ const DisplayName = () => {
 };
 ```
 
+### stateBusFamily
+```javascript
+import {
+    stateBusFamily,
+    useStateBusFamily,
+    getStateBusFamilyValues,
+    useStateBusSetter,
+    useStateBusValue,
+} from '@iore8655/react-bus';
+
+// global
+// const userBusFamily = stateBusFamily({
+//     name: 'john',
+//     number: 100,
+// });
+
+const StateBusFamilyExam = () => {
+    // local
+    const userBusFamily = useStateBusFamily({
+        name: 'john',
+        number: 100,
+    });
+
+    return (
+        <React.Fragment>
+            <InputName userBusFamily={userBusFamily} />
+            <DisplayName userBusFamily={userBusFamily} />
+            <button
+                onClick={() => {
+                    const { name, number } = getStateBusFamilyValues(userBusFamily);
+                    console.log(name, number);
+                }}
+            >
+                get values
+            </button>
+        </React.Fragment>
+    );
+};
+
+const InputName = ({ userBusFamily }) => {
+    const setName = useStateBusSetter(userBusFamily.name);
+
+    return (
+        <div>
+            input :
+            <input type={'text'} onChange={(e) => setName(e.target.value)} />
+        </div>
+    );
+};
+
+const DisplayName = ({ userBusFamily }) => {
+    const name = useStateBusValue(userBusFamily.name);
+
+    return <div>display : {name}</div>;
+};
+```
+
 
 ### eventBus
 ```javascript
