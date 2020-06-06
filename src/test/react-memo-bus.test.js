@@ -29,7 +29,7 @@ const setup = (nameBus, numberBus, infoBus) => {
     };
 
     const InputName = () => {
-        const setName = useStateBusSetter(nameBus);
+        const [setName] = useStateBusSetter(nameBus);
 
         renderCount.inputName++;
 
@@ -41,7 +41,7 @@ const setup = (nameBus, numberBus, infoBus) => {
     };
 
     const DisplayName = () => {
-        const name = useStateBusValue(nameBus);
+        const [name] = useStateBusValue(nameBus);
 
         renderCount.displayName++;
 
@@ -49,7 +49,7 @@ const setup = (nameBus, numberBus, infoBus) => {
     };
 
     const InputNumber = () => {
-        const setNumber = useStateBusSetter(numberBus);
+        const [setNumber] = useStateBusSetter(numberBus);
 
         renderCount.inputNumber++;
 
@@ -61,7 +61,7 @@ const setup = (nameBus, numberBus, infoBus) => {
     };
 
     const DisplayNumber = () => {
-        const number = useStateBusValue(numberBus);
+        const [number] = useStateBusValue(numberBus);
 
         renderCount.displayNumber++;
 

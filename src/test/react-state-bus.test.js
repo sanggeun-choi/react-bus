@@ -19,7 +19,7 @@ const setupGlobalStateBus = () => {
     };
 
     const Display = () => {
-        const name = useStateBusValue(nameBus);
+        const [name] = useStateBusValue(nameBus);
 
         renderCount.display++;
 
@@ -27,7 +27,7 @@ const setupGlobalStateBus = () => {
     };
 
     const Input = () => {
-        const setName = useStateBusSetter(nameBus);
+        const [setName] = useStateBusSetter(nameBus);
 
         renderCount.input++;
 
@@ -67,7 +67,7 @@ const setupLocalStateBus = () => {
     };
 
     const Display = ({ nameBus }) => {
-        const name = useStateBusValue(nameBus);
+        const [name] = useStateBusValue(nameBus);
 
         renderCount.display++;
 
@@ -75,7 +75,7 @@ const setupLocalStateBus = () => {
     };
 
     const Input = ({ nameBus }) => {
-        const setName = useStateBusSetter(nameBus);
+        const [setName] = useStateBusSetter(nameBus);
 
         renderCount.input++;
 
@@ -114,7 +114,7 @@ const setupSubscriberAndUnsubscribe = () => {
     };
 
     const Display = () => {
-        const name = useStateBusValue(nameBus);
+        const [name] = useStateBusValue(nameBus);
 
         return <div id={'display'}>{name}</div>;
     };
@@ -134,8 +134,8 @@ const setupMemoization = () => {
 
     const App = () => {
         const [, forceUpdate] = useState({});
-        const name = useStateBusValue(globalNameBus);
-        const setName = useStateBusSetter(globalNameBus);
+        const [name] = useStateBusValue(globalNameBus);
+        const [setName] = useStateBusSetter(globalNameBus);
         const localNameBus = useStateBus('tom');
 
         useEffect(() => {

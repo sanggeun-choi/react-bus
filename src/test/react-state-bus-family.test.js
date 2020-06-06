@@ -23,7 +23,7 @@ const setupGlobalStateBusFamily = () => {
     };
 
     const Display = () => {
-        const name = useStateBusValue(userBusFamily.name);
+        const [name] = useStateBusValue(userBusFamily.name);
 
         renderCount.display++;
 
@@ -31,7 +31,7 @@ const setupGlobalStateBusFamily = () => {
     };
 
     const Input = () => {
-        const setName = useStateBusSetter(userBusFamily.name);
+        const [setName] = useStateBusSetter(userBusFamily.name);
 
         renderCount.input++;
 
@@ -77,7 +77,7 @@ const setupLocalStateBusFamily = () => {
     };
 
     const Display = ({ userBusFamily }) => {
-        const name = useStateBusValue(userBusFamily.name);
+        const [name] = useStateBusValue(userBusFamily.name);
 
         renderCount.display++;
 
@@ -85,7 +85,7 @@ const setupLocalStateBusFamily = () => {
     };
 
     const Input = ({ userBusFamily }) => {
-        const setName = useStateBusSetter(userBusFamily.name);
+        const [setName] = useStateBusSetter(userBusFamily.name);
 
         renderCount.input++;
 
