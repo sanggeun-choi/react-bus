@@ -41,13 +41,9 @@ const setupGlobalEventBus = () => {
 
         renderCount.displayName++;
 
-        useEventBusListener(
-            changeNameBus,
-            (_name) => {
-                setName(_name);
-            },
-            [],
-        );
+        useEventBusListener(changeNameBus, (_name) => {
+            setName(_name);
+        });
 
         return <div id={'display-name'}>{name}</div>;
     };
@@ -69,13 +65,9 @@ const setupGlobalEventBus = () => {
 
         renderCount.displayNumber++;
 
-        useEventBusListener(
-            changeNumberBus,
-            (_number) => {
-                setNumber(_number);
-            },
-            [],
-        );
+        useEventBusListener(changeNumberBus, (_number) => {
+            setNumber(_number);
+        });
 
         return <div id={'display-number'}>{number}</div>;
     };
@@ -130,13 +122,9 @@ const setupLocaleEventBus = () => {
 
         renderCount.displayName++;
 
-        useEventBusListener(
-            changeNameBus,
-            (_name) => {
-                setName(_name);
-            },
-            [],
-        );
+        useEventBusListener(changeNameBus, (_name) => {
+            setName(_name);
+        });
 
         return <div id={'display-name'}>{name}</div>;
     };
@@ -158,13 +146,9 @@ const setupLocaleEventBus = () => {
 
         renderCount.displayNumber++;
 
-        useEventBusListener(
-            changeNumberBus,
-            (_number) => {
-                setNumber(_number);
-            },
-            [],
-        );
+        useEventBusListener(changeNumberBus, (_number) => {
+            setNumber(_number);
+        });
 
         return <div id={'display-number'}>{number}</div>;
     };
@@ -199,13 +183,9 @@ const setupSubscribeAndUnsubscribe = () => {
     const Display = () => {
         const [name, setName] = useState('');
 
-        useEventBusListener(
-            changeNameBus,
-            (_name) => {
-                setName(_name);
-            },
-            [],
-        );
+        useEventBusListener(changeNameBus, (_name) => {
+            setName(_name);
+        });
 
         return <div id={'display'}>{name}</div>;
     };

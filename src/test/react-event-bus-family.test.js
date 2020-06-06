@@ -30,13 +30,9 @@ const setupGlobalEventBusFamily = () => {
 
         renderCount.displayName++;
 
-        useEventBusListener(
-            userEventBusFamily.changeName,
-            (_name) => {
-                setName(_name);
-            },
-            [],
-        );
+        useEventBusListener(userEventBusFamily.changeName, (_name) => {
+            setName(_name);
+        });
 
         return <div id={'display-name'}>{name}</div>;
     };
@@ -54,13 +50,9 @@ const setupGlobalEventBusFamily = () => {
 
         renderCount.displayNumber++;
 
-        useEventBusListener(
-            userEventBusFamily.changeNumber,
-            (_number) => {
-                setNumber(_number);
-            },
-            [],
-        );
+        useEventBusListener(userEventBusFamily.changeNumber, (_number) => {
+            setNumber(_number);
+        });
 
         return <div id={'display-number'}>{number}</div>;
     };
@@ -105,13 +97,9 @@ const setupLocalEventBusFamily = () => {
 
         renderCount.displayName++;
 
-        useEventBusListener(
-            userEventBusFamily.changeName,
-            (_name) => {
-                setName(_name);
-            },
-            [],
-        );
+        useEventBusListener(userEventBusFamily.changeName, (_name) => {
+            setName(_name);
+        });
 
         return <div id={'display-name'}>{name}</div>;
     };
@@ -129,13 +117,9 @@ const setupLocalEventBusFamily = () => {
 
         renderCount.displayNumber++;
 
-        useEventBusListener(
-            userEventBusFamily.changeNumber,
-            (_number) => {
-                setNumber(_number);
-            },
-            [],
-        );
+        useEventBusListener(userEventBusFamily.changeNumber, (_number) => {
+            setNumber(_number);
+        });
 
         return <div id={'display-number'}>{number}</div>;
     };

@@ -1,4 +1,5 @@
-# react-bus
+# @iore8655/react-bus
+- @iore8655/react-bus is a global/local state management by pub/sub
 - render only subscribers
 
 
@@ -54,7 +55,6 @@ const Display = () => {
 
     return <div>display : {name}</div>;
 };
-
 ```
 
 ### stateBusFamily
@@ -69,14 +69,14 @@ import {
 } from '@iore8655/react-bus';
 
 // global
-const userBusFamily = stateBusFamily({
+const userStateBusFamily = stateBusFamily({
     name: 'john',
     number: 100,
 });
 
 const App = () => {
     // local
-    // const userBusFamily = useStateBusFamily({
+    // const userStateBusFamily = useStateBusFamily({
     //     name: 'john',
     //     number: 100,
     // });
@@ -87,7 +87,7 @@ const App = () => {
             <Display />
             <button
                 onClick={() => {
-                    const { name, number } = getStateBusFamilyValues(userBusFamily);
+                    const { name, number } = getStateBusFamilyValues(userStateBusFamily);
                     console.log(name, number);
                 }}
             >
@@ -98,7 +98,7 @@ const App = () => {
 };
 
 const Input = () => {
-    const [setName] = useStateBusSetter(userBusFamily.name);
+    const [setName] = useStateBusSetter(userStateBusFamily.name);
 
     return (
         <div>
@@ -109,7 +109,7 @@ const Input = () => {
 };
 
 const Display = () => {
-    const [name] = useStateBusValue(userBusFamily.name);
+    const [name] = useStateBusValue(userStateBusFamily.name);
 
     return <div>display : {name}</div>;
 };
@@ -127,13 +127,13 @@ import {
 } from '@iore8655/react-bus';
 
 // global
-const changeNameBus = eventBus();
-const changeNumberBus = eventBus();
+const onChangeNameBus = eventBus();
+const onChangeNumberBus = eventBus();
 
 const App = () => {
     // local
-    // const changeNameBus = useEventBus();
-    // const changeNumberBus = useEventBus();
+    // const onChangeNameBus = useEventBus();
+    // const onChangeNumberBus = useEventBus();
 
     return (
         <React.Fragment>
@@ -144,12 +144,15 @@ const App = () => {
 };
 
 const Input = () => {
-    const [changeName, changeNumber] = useEventBusCaller(changeNameBus, changeNumberBus);
+    const [onChangeName, onChangeNumber] = useEventBusCaller(
+        onChangeNameBus,
+        onChangeNumberBus,
+    );
 
     return (
         <div>
             input :
-            <input type={'text'} onChange={(e) => changeName(e.target.value)} />
+            <input type={'text'} onChange={(e) => onChangeName(e.target.value)} />
         </div>
     );
 };
@@ -157,13 +160,9 @@ const Input = () => {
 const Display = () => {
     const [name, setName] = useState('');
 
-    useEventBusListener(
-        changeNameBus,
-        (_name) => {
-            setName(_name);
-        },
-        [],
-    );
+    useEventBusListener(onChangeNameBus, (_name) => {
+        setName(_name);
+    });
 
     return <div>display : {name}</div>;
 };
@@ -180,11 +179,11 @@ import {
 } from '@iore8655/react-bus';
 
 // global
-const userEventBusFamily = eventBusFamily('changeNameBus', 'changeNumberBus');
+const userEventBusFamily = eventBusFamily('onChangeName', 'onChangeNumber');
 
 const App = () => {
     // local
-    // const userEventBusFamily = useEventBusFamily('changeNameBus', 'changeNumberBus');
+    // const userEventBusFamily = useEventBusFamily('onChangeName', 'onChangeNumber');
 
     return (
         <React.Fragment>
@@ -195,15 +194,15 @@ const App = () => {
 };
 
 const Input = () => {
-    const [changeName, changeNumber] = useEventBusCaller(
-        userEventBusFamily.changeNameBus,
-        userEventBusFamily.changeNumberBus,
+    const [onChangeName, onChangeNumber] = useEventBusCaller(
+        userEventBusFamily.onChangeName,
+        userEventBusFamily.onChangeNumber,
     );
 
     return (
         <div>
             input :
-            <input type={'text'} onChange={(e) => changeName(e.target.value)} />
+            <input type={'text'} onChange={(e) => onChangeName(e.target.value)} />
         </div>
     );
 };
@@ -211,13 +210,9 @@ const Input = () => {
 const Display = () => {
     const [name, setName] = useState('');
 
-    useEventBusListener(
-        userEventBusFamily.changeNameBus,
-        (_name) => {
-            setName(_name);
-        },
-        [],
-    );
+    useEventBusListener(userEventBusFamily.onChangeName, (_name) => {
+        setName(_name);
+    });
 
     return <div>display : {name}</div>;
 };
@@ -225,6 +220,7 @@ const Display = () => {
 
 ### memoBus
 ```javascript
+import React from 'react';
 import { memoBus, stateBus, useMemoBus, useStateBusSetter } from '@iore8655/react-bus';
 
 const numberBus = stateBus(0);
@@ -273,8 +269,14 @@ const DisplayInfo = () => {
 
 ### memoBusAsync
 ```javascript
+import React from 'react';
 import axios from 'axios';
-import { memoBusAsync, stateBus, useMemoBus, useStateBusSetter } from '@iore8655/react-bus';
+import {
+    memoBusAsync,
+    stateBus,
+    useMemoBus,
+    useStateBusSetter,
+} from '@iore8655/react-bus';
 
 const numberBus = stateBus(0);
 

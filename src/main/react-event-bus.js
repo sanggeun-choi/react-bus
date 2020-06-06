@@ -38,7 +38,7 @@ export default (context) => {
         );
     };
 
-    const useEventBusListener = (eventBus, callback, deps) => {
+    const useEventBusListener = (eventBus, callback) => {
         const subId = useMemo(() => `sub-${context.subId++}`, []);
 
         useEffect(() => {
@@ -47,7 +47,7 @@ export default (context) => {
             eventBus.subscribers[subId] = { callback };
 
             return () => delete eventBus.subscribers[subId];
-        }, [assertEventBus, eventBus, subId, callback, ...deps]);
+        }, [assertEventBus, eventBus, subId, callback]);
     };
 
     return { eventBus, useEventBus, useEventBusCaller, useEventBusListener };
