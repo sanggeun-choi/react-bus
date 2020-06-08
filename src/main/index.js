@@ -6,20 +6,23 @@ import reactMemoBus from './react-memo-bus';
 
 const context = { subId: 0 };
 
-const { stateBus, useStateBus, useStateBusValue, useStateBusSetter } = reactStateBus(context);
-const { stateBusFamily, useStateBusFamily, getStateBusFamilyValues } = reactStateBusFamily(context);
+const { stateBus, getStateBusValues, setStateBusValues, useStateBus, useStateBusValue, useStateBusSetter } = reactStateBus(context);
+const { stateBusFamily, useStateBusFamily, getStateBusFamilyValues, setStateBusFamilyValues } = reactStateBusFamily(context);
 const { eventBus, useEventBus, useEventBusCaller, useEventBusListener } = reactEventBus(context);
 const { eventBusFamily, useEventBusFamily } = reactEventBusFamily(context);
 const { memoBus, memoBusAsync, useMemoBus } = reactMemoBus(context);
 
 export {
     stateBus,
+    getStateBusValues,
+    setStateBusValues,
     useStateBus,
     useStateBusValue,
     useStateBusSetter,
     stateBusFamily,
     useStateBusFamily,
     getStateBusFamilyValues,
+    setStateBusFamilyValues,
     eventBus,
     useEventBus,
     useEventBusCaller,

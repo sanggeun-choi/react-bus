@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
+import { getStateBusValues, setStateBusValues, stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
 
 const setupGlobalStateBus = () => {
     const nameBus = stateBus('john');
@@ -128,6 +128,71 @@ const setupSubscriberAndUnsubscribe = () => {
     };
 };
 
+const setupGetStateBusValues = () => {
+    const nameBus = stateBus('john');
+    const numberBus = stateBus(100);
+
+    const App = () => {
+        const [setName, setNumber] = useStateBusSetter(nameBus, numberBus);
+
+        return (
+            <button
+                id={'change-values'}
+                onClick={() => {
+                    setName('tom');
+                    setNumber(200);
+                }}
+            >
+                change values
+            </button>
+        );
+    };
+
+    const { container } = render(<App />);
+
+    return { nameBus, numberBus, getChangeValues: () => container.querySelector('#change-values') };
+};
+
+const setupSetStateBusValues = () => {
+    const nameBus = stateBus('john');
+    const numberBus = stateBus(100);
+
+    const renderCount = { nameAndNumber: 0, nameOnly: 0 };
+
+    const App = () => {
+        return (
+            <div>
+                <NameAndNumber />
+                <NameOnly />
+            </div>
+        );
+    };
+
+    const NameAndNumber = () => {
+        const [name, number] = useStateBusValue(nameBus, numberBus);
+
+        renderCount.nameAndNumber++;
+
+        return (
+            <div>
+                {name} : {number}
+            </div>
+        );
+    };
+
+    const NameOnly = () => {
+        const [name] = useStateBusValue(nameBus);
+
+        renderCount.nameOnly++;
+
+        return <div>{name}</div>;
+    };
+
+    const { container } = render(<App />);
+
+    return { nameBus, numberBus, renderCount };
+};
+
 const setupMemoization = () => {
     const globalNameBus = stateBus('john');
     const renderCount = { app: 0 };
@@ -198,6 +263,25 @@ describe('stateBus', () => {
 
         expect(getDisplay()).toBeInTheDocument();
         expect(Object.values(nameBus.subscribers).length).toEqual(1);
+    });
+
+    it('getStateBusValues 기능 테스트', () => {
+        const { nameBus, numberBus, getChangeValues } = setupGetStateBusValues();
+
+        fireEvent.click(getChangeValues());
+
+        expect(getStateBusValues(nameBus, numberBus)).toEqual(['tom', 200]);
+    });
+
+    it('setStateBusValues 기능 테스트', () => {
+        const { nameBus, numberBus, renderCount } = setupSetStateBusValues();
+
+        expect(renderCount).toEqual({ nameAndNumber: 1, nameOnly: 1 });
+
+        setStateBusValues([nameBus, 'tom'], [numberBus, 200]);
+
+        expect(renderCount).toEqual({ nameAndNumber: 2, nameOnly: 2 });
+        expect(getStateBusValues(nameBus, numberBus)).toEqual(['tom', 200]);
     });
 
     it('올바르게 memoize 처리되는지 확인', () => {

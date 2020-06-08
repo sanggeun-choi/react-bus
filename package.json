@@ -1,6 +1,6 @@
 {
     "name": "@iore8655/react-bus",
-    "version": "0.1.1",
+    "version": "0.1.2",
     "author": "sanggeun-choi",
     "homepage": "https://github.com/sanggeun-choi/react-bus",
     "description": "@iore8655/react-bus is a global/local state management by pub/sub",

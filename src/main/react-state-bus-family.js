@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { stateBus } from './index';
+import { setStateBusValues, stateBus } from './index';
 
 export default () => {
     const stateBusFamily = (defaultValues) => {
@@ -20,5 +20,19 @@ export default () => {
         }, {});
     };
 
-    return { stateBusFamily, useStateBusFamily, getStateBusFamilyValues };
+    const setStateBusFamilyValues = (stateBusFamily, params) => {
+        const _params = Object.entries(params).map(([key, value]) => {
+            const _stateBus = stateBusFamily[key];
+
+            if (!_stateBus) {
+                throw new Error(`${key} is not included in stateBusFamily`);
+            }
+
+            return [_stateBus, value];
+        });
+
+        setStateBusValues(..._params);
+    };
+
+    return { stateBusFamily, useStateBusFamily, getStateBusFamilyValues, setStateBusFamilyValues };
 };

@@ -57,13 +57,24 @@ const Display = () => {
 };
 ```
 
+### stateBus - getStateBusValues, setStateBusValues
+```javascript
+import { stateBus, getStateBusValues, setStateBusValues } from '@iore8655/react-bus';
+
+const nameBus = stateBus('');
+const numberBus = stateBus(0);
+
+const [name, number] = getStateBusValues(nameBus, numberBus);
+
+setStateBusValues([nameBus, 'john'], [numberBus, 200]);
+```
+
 ### stateBusFamily
 ```javascript
 import React from 'react';
 import {
     stateBusFamily,
     useStateBusFamily,
-    getStateBusFamilyValues,
     useStateBusSetter,
     useStateBusValue,
 } from '@iore8655/react-bus';
@@ -85,20 +96,15 @@ const App = () => {
         <React.Fragment>
             <Input />
             <Display />
-            <button
-                onClick={() => {
-                    const { name, number } = getStateBusFamilyValues(userStateBusFamily);
-                    console.log(name, number);
-                }}
-            >
-                get values
-            </button>
         </React.Fragment>
     );
 };
 
 const Input = () => {
-    const [setName] = useStateBusSetter(userStateBusFamily.name);
+    const [setName, setNumber] = useStateBusSetter(
+        userStateBusFamily.name,
+        userStateBusFamily.number,
+    );
 
     return (
         <div>
@@ -109,10 +115,32 @@ const Input = () => {
 };
 
 const Display = () => {
-    const [name] = useStateBusValue(userStateBusFamily.name);
+    const [name, number] = useStateBusValue(
+        userStateBusFamily.name,
+        userStateBusFamily.number,
+    );
 
     return <div>display : {name}</div>;
 };
+```
+
+
+### stateBusFamily - getStateBusFamilyValues, setStateBusFamilyValues
+```javascript
+import {
+    stateBusFamily,
+    getStateBusFamilyValues,
+    setStateBusFamilyValues,
+} from '@iore8655/react-bus';
+
+const userStateBusFamily = stateBusFamily({
+    name: '',
+    number: 0,
+});
+
+const { name, number } = getStateBusFamilyValues(userStateBusFamily);
+
+setStateBusFamilyValues(userStateBusFamily, { name: 'john', number: 200 });
 ```
 
 

@@ -20,6 +20,28 @@ export default (context) => {
         };
     };
 
+    const getStateBusValues = (...stateBusList) => {
+        assertStateBusList(stateBusList);
+
+        return stateBusList.map((_stateBus) => _stateBus.get());
+    };
+
+    const setStateBusValues = (...params) => {
+        assertStateBusList(params.map(([_stateBus]) => _stateBus));
+
+        const subscribers = {};
+
+        for (const [_stateBus, _value] of params) {
+            _stateBus.get = () => _value;
+
+            for (const [subId, subscriber] of Object.entries(_stateBus.subscribers)) {
+                subscribers[subId] = subscriber;
+            }
+        }
+
+        Object.values(subscribers).forEach((_subscriber) => _subscriber.callback());
+    };
+
     const useStateBus = (defaultValue) => {
         return useRef(stateBus(defaultValue)).current;
     };
@@ -45,13 +67,16 @@ export default (context) => {
         }, [assertStateBusList, stateBusList]);
 
         return stateBusList.map((_stateBus) =>
-            useCallback((value) => {
-                _stateBus.get = () => value;
+            useCallback(
+                (value) => {
+                    _stateBus.get = () => value;
 
-                Object.values(_stateBus.subscribers).forEach((subscriber) => subscriber.callback());
-            }, [_stateBus]),
+                    Object.values(_stateBus.subscribers).forEach((subscriber) => subscriber.callback());
+                },
+                [_stateBus],
+            ),
         );
     };
 
-    return { stateBus, useStateBus, useStateBusValue, useStateBusSetter };
+    return { stateBus, getStateBusValues, setStateBusValues, useStateBus, useStateBusValue, useStateBusSetter };
 };
