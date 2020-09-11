@@ -3,31 +3,31 @@ import BUS_CONST from './react-bus-consts';
 
 const context = { subId: 0 };
 
-export const assertStateBus = (stateBus) => {
+function assertStateBus(stateBus) {
     if (stateBus.type !== BUS_CONST.TYPE.STATE_BUS) {
         throw new Error(`${stateBus.type} is not invalid type -> ${BUS_CONST.TYPE.STATE_BUS}`);
     }
-};
+}
 
-export const assertStateBusList = (stateBusList) => {
+function assertStateBusList(stateBusList) {
     stateBusList.forEach((_stateBus) => assertStateBus(_stateBus));
-};
+}
 
-export const stateBus = (defaultValue) => {
+export function stateBus(defaultValue) {
     return {
         type: BUS_CONST.TYPE.STATE_BUS,
         subscribers: {},
         get: () => defaultValue,
     };
-};
+}
 
-export const getStateBusValues = (...stateBusList) => {
+export function getStateBusValues(...stateBusList) {
     assertStateBusList(stateBusList);
 
     return stateBusList.map((_stateBus) => _stateBus.get());
-};
+}
 
-export const setStateBusValues = (...params) => {
+export function setStateBusValues(...params) {
     assertStateBusList(params.map(([_stateBus]) => _stateBus));
 
     const subscribers = {};
@@ -40,14 +40,14 @@ export const setStateBusValues = (...params) => {
         }
     }
 
-    Object.values(subscribers).forEach((_subscriber) => _subscriber.callback());
-};
+    Object.values(subscribers).forEach((_subscriber: any) => _subscriber.callback());
+}
 
-export const useStateBus = (defaultValue) => {
+export function useStateBus(defaultValue) {
     return useRef(stateBus(defaultValue)).current;
-};
+}
 
-export const useStateBusValue = (...stateBusList) => {
+export function useStateBusValue(...stateBusList) {
     const [, forceUpdate] = useState({});
     const subId = useMemo(() => `sub-${context.subId++}`, []);
 
@@ -60,9 +60,9 @@ export const useStateBusValue = (...stateBusList) => {
     }, [assertStateBusList, stateBusList, subId]);
 
     return stateBusList.map((_stateBus) => _stateBus.get());
-};
+}
 
-export const useStateBusSetter = (...stateBusList) => {
+export function useStateBusSetter(...stateBusList) {
     useEffect(() => {
         assertStateBusList(stateBusList);
     }, [assertStateBusList, stateBusList]);
@@ -72,9 +72,9 @@ export const useStateBusSetter = (...stateBusList) => {
             (value) => {
                 _stateBus.get = () => value;
 
-                Object.values(_stateBus.subscribers).forEach((subscriber) => subscriber.callback());
+                Object.values(_stateBus.subscribers).forEach((subscriber: any) => subscriber.callback());
             },
             [_stateBus],
         ),
     );
-};
+}
