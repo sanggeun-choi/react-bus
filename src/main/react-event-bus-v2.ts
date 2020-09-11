@@ -25,5 +25,5 @@ export function useEventBusSelector(eventBus: EventBus, callback: Function): voi
         eventBus.subscribers[subId] = { callback };
 
         return () => delete eventBus.subscribers[subId];
-    }, []);
+    }, [eventBus, subId, callback]);
 }

@@ -56,7 +56,7 @@ export function useStateBusSelector(stateBus: StateBus, selector: Function): any
         };
 
         return () => delete stateBus.subscribers[subId];
-    }, []);
+    }, [stateBus, subId, value]);
 
     return value.current;
 }
