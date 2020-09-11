@@ -78,6 +78,31 @@ const setupSubscriberAndUnsubscribe = () => {
     };
 };
 
+const setupRootStateImmutableTest = () => {
+    const stateBus = createStateBus({ number: 1 });
+    const renderCount = { app: 0 };
+
+    const App = () => {
+        const state = useStateBusSelector(stateBus, (state) => state);
+
+        renderCount.app++;
+
+        return (
+            <button id={'up'} onClick={() => stateBus.dispatch((state) => state.number++)}>
+                change state
+            </button>
+        );
+    };
+
+    const { container } = render(<App />);
+
+    return {
+        stateBus,
+        renderCount,
+        getUpButton: () => container.querySelector('#up'),
+    };
+};
+
 const setupMemoization = () => {
     const stateBus = createStateBus({ name: 'john' });
     const renderCount = { app: 0 };
@@ -133,6 +158,19 @@ describe('stateBus', () => {
 
         expect(getDisplay()).toBeInTheDocument();
         expect(Object.values(stateBus.subscribers).length).toEqual(1);
+    });
+
+    it('root state immutable 테스트', () => {
+        const { stateBus, renderCount, getUpButton } = setupRootStateImmutableTest();
+
+        expect(1).toEqual(stateBus.state.number);
+        expect(1).toEqual(renderCount.app);
+
+        fireEvent.click(getUpButton());
+        fireEvent.click(getUpButton());
+
+        expect(3).toEqual(stateBus.state.number);
+        expect(3).toEqual(renderCount.app);
     });
 
     it('올바르게 memoize 처리되는지 확인', () => {

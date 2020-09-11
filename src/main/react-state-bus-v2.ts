@@ -30,6 +30,7 @@ class StateBus {
 
     public dispatch(dispatcher: Function): void {
         dispatcher(this.state);
+        this.state = { ...this.state };
         this.rerender();
     }
 }
