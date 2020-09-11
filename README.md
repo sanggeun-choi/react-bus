@@ -122,3 +122,79 @@ const Display = () => {
     return <div>display : {name}</div>;
 };
 ```
+
+
+### v2
+```javascript
+import React from 'react';
+import {
+    createEventBus,
+    createStateBus,
+    useEventBusSelector,
+    useStateBusSelector,
+} from '@iore8655/react-bus';
+
+const stateBus = createStateBus({
+    name: 'john',
+    number: 0,
+});
+
+const eventBus = createEventBus();
+
+const DisplayName = () => {
+    const name = useStateBusSelector(stateBus, (state) => state.name);
+
+    useEventBusSelector(eventBus, (message) => {
+        console.log(message);
+    });
+
+    return (
+        <React.Fragment>
+            <div>name : {name}</div>
+        </React.Fragment>
+    );
+};
+
+const DisplayNumber = () => {
+    const number = useStateBusSelector(stateBus, (state) => state.number);
+
+    useEventBusSelector(eventBus, (message) => {
+        console.log(message);
+    });
+
+    return (
+        <React.Fragment>
+            <div>number : {number}</div>
+        </React.Fragment>
+    );
+};
+
+const Controller = () => {
+    return (
+        <div>
+            <button onClick={() => stateBus.dispatch((state) => (state.number += 1))}>
+                increase
+            </button>
+            <button onClick={() => stateBus.dispatch((state) => (state.number -= 1))}>
+                decrease
+            </button>
+            <button onClick={() => console.log(stateBus.state)}>get state</button>
+            <button onClick={() => stateBus.reset()}>reset</button>
+            <button onClick={() => stateBus.init({ name: 'tom', number: 1 })}>restore</button>
+            <button onClick={() => eventBus.dispatch('Hello World')}>event</button>
+        </div>
+    );
+};
+
+const App = () => {
+    return (
+        <React.Fragment>
+            <DisplayName />
+            <DisplayNumber />
+            <Controller />
+        </React.Fragment>
+    );
+};
+
+export default App;
+```
