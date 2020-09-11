@@ -28,9 +28,16 @@ class StateBus {
         this.rerender();
     }
 
-    public dispatch(dispatcher: Function): void {
-        dispatcher(this.state);
-        this.state = { ...this.state };
+    public dispatch(props: Function | Object): void {
+        if (props instanceof Function) {
+            props(this.state);
+            this.state = { ...this.state };
+        }
+
+        if (props instanceof Object) {
+            this.state = { ...this.state, ...props };
+        }
+
         this.rerender();
     }
 }

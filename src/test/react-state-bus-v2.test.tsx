@@ -179,6 +179,25 @@ describe('stateBus', () => {
         expect(renderCount.app).toEqual(1);
     });
 
+    it('dispatch 테스트', () => {
+        const stateBus = createStateBus({ name: 'john', number: 0 });
+
+        expect('john').toEqual(stateBus.state.name);
+        expect(0).toEqual(stateBus.state.number);
+
+        stateBus.dispatch((state) => (state.name = 'tom'));
+        stateBus.dispatch((state) => (state.number = 1));
+
+        expect('tom').toEqual(stateBus.state.name);
+        expect(1).toEqual(stateBus.state.number);
+
+        stateBus.dispatch({ name: 'jane' });
+        stateBus.dispatch({ number: 2 });
+
+        expect('jane').toEqual(stateBus.state.name);
+        expect(2).toEqual(stateBus.state.number);
+    });
+
     it('get state 테스트', () => {
         const stateBus = createStateBus({ name: 'john', number: 0 });
 

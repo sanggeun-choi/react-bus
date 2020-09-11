@@ -62,7 +62,7 @@ const Controller = () => {
             <button onClick={() => stateBus.dispatch((state) => (state.number += 1))}>
                 increase
             </button>
-            <button onClick={() => stateBus.dispatch((state) => (state.number -= 1))}>
+            <button onClick={() => stateBus.dispatch({ number: state.number - 1 })}>
                 decrease
             </button>
             <button onClick={() => console.log(stateBus.state)}>get state</button>
