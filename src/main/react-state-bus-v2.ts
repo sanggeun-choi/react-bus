@@ -72,3 +72,17 @@ export function useStateBusSelector(stateBus: StateBus, selector: Function): any
 
     return value.current;
 }
+
+export function useStateBusReset(stateBus: StateBus, options?: { mount?: boolean; unmount?: boolean }): void {
+    useEffect(() => {
+        if (lodash.get(options, 'mount', true)) {
+            stateBus.reset();
+        }
+
+        return () => {
+            if (lodash.get(options, 'unmount', true)) {
+                stateBus.reset();
+            }
+        };
+    }, []);
+}

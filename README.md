@@ -18,6 +18,7 @@ import {
     createEventBus,
     createStateBus,
     useEventBusSelector,
+    useStateBusReset,
     useStateBusSelector,
 } from '@iore8655/react-bus';
 
@@ -49,6 +50,8 @@ const DisplayNumber = () => {
         console.log(message);
     });
 
+    useStateBusReset(stateBus); // call stateBus.reset() when mounted/unmounted
+
     return (
         <React.Fragment>
             <div>number : {number}</div>
@@ -62,7 +65,7 @@ const Controller = () => {
             <button onClick={() => stateBus.dispatch((state) => (state.number += 1))}>
                 increase
             </button>
-            <button onClick={() => stateBus.dispatch({ number: state.number - 1 })}>
+            <button onClick={() => stateBus.dispatch({ number: stateBus.getState().number - 1 })}>
                 decrease
             </button>
             <button onClick={() => console.log(stateBus.getState())}>getState()</button>
