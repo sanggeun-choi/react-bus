@@ -1,17 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import lodash from 'lodash';
+import { Bus, context } from './react-bus-core';
 
-const context = { subId: 0 };
-
-class StateBus {
+class StateBus extends Bus {
     public initialState: any;
     public state: any;
-    public subscribers: any;
 
     constructor(initialState: Object) {
+        super();
         this.initialState = lodash.cloneDeep(initialState);
         this.state = lodash.cloneDeep(initialState);
-        this.subscribers = {};
     }
 
     private rerender(): void {
@@ -52,18 +50,16 @@ export function useStateBusSelector(stateBus: StateBus, selector: Function): any
     const subId = useMemo(() => `sub-${context.subId++}`, []);
 
     useEffect(() => {
-        stateBus.subscribers[subId] = {
-            callback: () => {
-                const nextValue = selector(stateBus.state);
+        stateBus.subscribe(subId, () => {
+            const nextValue = selector(stateBus.state);
 
-                if (value.current !== nextValue) {
-                    value.current = nextValue;
-                    forceUpdate({});
-                }
-            },
-        };
+            if (value.current !== nextValue) {
+                value.current = nextValue;
+                forceUpdate({});
+            }
+        });
 
-        return () => delete stateBus.subscribers[subId];
+        return () => stateBus.unsubscribe(subId);
     }, [stateBus, subId, value]);
 
     return value.current;

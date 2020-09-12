@@ -1,11 +1,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import BUS_CONST from './react-bus-consts';
-
-const context = { subId: 0 };
+import { BUS_TYPE, context } from './react-bus-core';
 
 function assertStateBus(stateBus) {
-    if (stateBus.type !== BUS_CONST.TYPE.STATE_BUS) {
-        throw new Error(`${stateBus.type} is not invalid type -> ${BUS_CONST.TYPE.STATE_BUS}`);
+    if (stateBus.type !== BUS_TYPE.STATE_BUS) {
+        throw new Error(`${stateBus.type} is not invalid type -> ${BUS_TYPE.STATE_BUS}`);
     }
 }
 
@@ -15,7 +13,7 @@ function assertStateBusList(stateBusList) {
 
 export function stateBus(defaultValue) {
     return {
-        type: BUS_CONST.TYPE.STATE_BUS,
+        type: BUS_TYPE.STATE_BUS,
         subscribers: {},
         get: () => defaultValue,
     };

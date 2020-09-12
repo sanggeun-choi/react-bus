@@ -1,14 +1,7 @@
 import { useEffect, useMemo } from 'react';
+import { Bus, context } from './react-bus-core';
 
-const context = { subId: 0 };
-
-class EventBus {
-    public subscribers: any;
-
-    constructor() {
-        this.subscribers = {};
-    }
-
+class EventBus extends Bus {
     public dispatch(...props): void {
         Object.values(this.subscribers).forEach((subscriber: any) => subscriber.callback(...props));
     }
@@ -22,8 +15,8 @@ export function useEventBusSelector(eventBus: EventBus, callback: Function): voi
     const subId = useMemo(() => `sub-${context.subId++}`, []);
 
     useEffect(() => {
-        eventBus.subscribers[subId] = { callback };
+        eventBus.subscribe(subId, callback);
 
-        return () => delete eventBus.subscribers[subId];
+        return () => eventBus.unsubscribe(subId);
     }, [eventBus, subId, callback]);
 }

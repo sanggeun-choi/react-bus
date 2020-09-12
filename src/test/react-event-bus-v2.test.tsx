@@ -142,17 +142,17 @@ describe('eventBus', () => {
         const { changeNameBus, getToggle, getDisplay } = setupSubscribeAndUnsubscribeTest();
 
         expect(getDisplay()).toBeInTheDocument();
-        expect(Object.values(changeNameBus.subscribers).length).toEqual(1);
+        expect(Object.values(changeNameBus.getSubscribers()).length).toEqual(1);
 
         fireEvent.click(getToggle());
 
         expect(getDisplay()).not.toBeInTheDocument();
-        expect(Object.values(changeNameBus.subscribers).length).toEqual(0);
+        expect(Object.values(changeNameBus.getSubscribers()).length).toEqual(0);
 
         fireEvent.click(getToggle());
 
         expect(getDisplay()).toBeInTheDocument();
-        expect(Object.values(changeNameBus.subscribers).length).toEqual(1);
+        expect(Object.values(changeNameBus.getSubscribers()).length).toEqual(1);
     });
 
     it('memoization 테스트', () => {

@@ -147,17 +147,17 @@ describe('stateBus', () => {
         const { stateBus, getDisplay, getToggle } = setupSubscriberAndUnsubscribe();
 
         expect(getDisplay()).toBeInTheDocument();
-        expect(Object.values(stateBus.subscribers).length).toEqual(1);
+        expect(Object.values(stateBus.getSubscribers()).length).toEqual(1);
 
         fireEvent.click(getToggle());
 
         expect(getDisplay()).not.toBeInTheDocument();
-        expect(Object.values(stateBus.subscribers).length).toEqual(0);
+        expect(Object.values(stateBus.getSubscribers()).length).toEqual(0);
 
         fireEvent.click(getToggle());
 
         expect(getDisplay()).toBeInTheDocument();
-        expect(Object.values(stateBus.subscribers).length).toEqual(1);
+        expect(Object.values(stateBus.getSubscribers()).length).toEqual(1);
     });
 
     it('root state immutable 테스트', () => {
