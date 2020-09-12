@@ -163,13 +163,13 @@ describe('stateBus', () => {
     it('root state immutable 테스트', () => {
         const { stateBus, renderCount, getUpButton } = setupRootStateImmutableTest();
 
-        expect(1).toEqual(stateBus.state.number);
+        expect(1).toEqual(stateBus.getState().number);
         expect(1).toEqual(renderCount.app);
 
         fireEvent.click(getUpButton());
         fireEvent.click(getUpButton());
 
-        expect(3).toEqual(stateBus.state.number);
+        expect(3).toEqual(stateBus.getState().number);
         expect(3).toEqual(renderCount.app);
     });
 
@@ -179,65 +179,77 @@ describe('stateBus', () => {
         expect(renderCount.app).toEqual(1);
     });
 
-    it('dispatch 테스트', () => {
+    it('dispatch() 테스트', () => {
         const stateBus = createStateBus({ name: 'john', number: 0 });
 
-        expect('john').toEqual(stateBus.state.name);
-        expect(0).toEqual(stateBus.state.number);
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
 
         stateBus.dispatch((state) => (state.name = 'tom'));
         stateBus.dispatch((state) => (state.number = 1));
 
-        expect('tom').toEqual(stateBus.state.name);
-        expect(1).toEqual(stateBus.state.number);
+        expect('tom').toEqual(stateBus.getState().name);
+        expect(1).toEqual(stateBus.getState().number);
 
         stateBus.dispatch({ name: 'jane' });
         stateBus.dispatch({ number: 2 });
 
-        expect('jane').toEqual(stateBus.state.name);
-        expect(2).toEqual(stateBus.state.number);
+        expect('jane').toEqual(stateBus.getState().name);
+        expect(2).toEqual(stateBus.getState().number);
     });
 
-    it('get state 테스트', () => {
+    it('setState() 테스트', () => {
         const stateBus = createStateBus({ name: 'john', number: 0 });
 
-        expect('john').toEqual(stateBus.state.name);
-        expect(0).toEqual(stateBus.state.number);
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
+
+        stateBus.setState({ number: 2 });
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(2).toEqual(stateBus.getState().number);
+    });
+
+    it('getState() 테스트', () => {
+        const stateBus = createStateBus({ name: 'john', number: 0 });
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
 
         stateBus.dispatch((state) => state.number++);
         stateBus.dispatch((state) => state.number++);
 
-        expect('john').toEqual(stateBus.state.name);
-        expect(2).toEqual(stateBus.state.number);
+        expect('john').toEqual(stateBus.getState().name);
+        expect(2).toEqual(stateBus.getState().number);
     });
 
-    it('reset 테스트', () => {
+    it('reset() 테스트', () => {
         const stateBus = createStateBus({ name: 'john', number: 0 });
 
-        expect('john').toEqual(stateBus.state.name);
-        expect(0).toEqual(stateBus.state.number);
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
 
         stateBus.dispatch((state) => (state.name = 'tom'));
         stateBus.dispatch((state) => (state.number = 1));
 
-        expect('tom').toEqual(stateBus.state.name);
-        expect(1).toEqual(stateBus.state.number);
+        expect('tom').toEqual(stateBus.getState().name);
+        expect(1).toEqual(stateBus.getState().number);
 
         stateBus.reset();
 
-        expect('john').toEqual(stateBus.state.name);
-        expect(0).toEqual(stateBus.state.number);
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
     });
 
-    it('restore 테스트', () => {
+    it('restore() 테스트', () => {
         const stateBus = createStateBus({ name: 'john', number: 0 });
 
-        expect('john').toEqual(stateBus.state.name);
-        expect(0).toEqual(stateBus.state.number);
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
 
         stateBus.restore({ name: 'tom', number: 1 });
 
-        expect('tom').toEqual(stateBus.state.name);
-        expect(1).toEqual(stateBus.state.number);
+        expect('tom').toEqual(stateBus.getState().name);
+        expect(1).toEqual(stateBus.getState().number);
     });
 });

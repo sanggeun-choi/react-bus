@@ -3,8 +3,8 @@ import lodash from 'lodash';
 import { Bus, context } from './react-bus-core';
 
 class StateBus extends Bus {
-    public initialState: any;
-    public state: any;
+    private initialState: any;
+    private state: any;
 
     constructor(initialState: Object) {
         super();
@@ -14,6 +14,14 @@ class StateBus extends Bus {
 
     private rerender(): void {
         Object.values(this.subscribers).forEach((subscriber: any) => subscriber.callback());
+    }
+
+    public setState(props: Object): void {
+        this.state = { ...this.state, ...props };
+    }
+
+    public getState(): any {
+        return this.state;
     }
 
     public reset(): void {
@@ -29,11 +37,11 @@ class StateBus extends Bus {
     public dispatch(props: Function | Object): void {
         if (props instanceof Function) {
             props(this.state);
-            this.state = { ...this.state };
+            this.setState({});
         }
 
         if (props instanceof Object) {
-            this.state = { ...this.state, ...props };
+            this.setState(props);
         }
 
         this.rerender();
@@ -46,12 +54,12 @@ export function createStateBus(initialState: Object): StateBus {
 
 export function useStateBusSelector(stateBus: StateBus, selector: Function): any {
     const [, forceUpdate] = useState({});
-    const value = useRef(stateBus && selector(stateBus.state));
+    const value = useRef(stateBus && selector(stateBus.getState()));
     const subId = useMemo(() => `sub-${context.subId++}`, []);
 
     useEffect(() => {
         stateBus.subscribe(subId, () => {
-            const nextValue = selector(stateBus.state);
+            const nextValue = selector(stateBus.getState());
 
             if (value.current !== nextValue) {
                 value.current = nextValue;
