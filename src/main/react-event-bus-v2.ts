@@ -3,14 +3,14 @@ import { useEffect, useMemo } from 'react';
 const context = { subId: 0 };
 
 class EventBus {
-    public subscribers: Object;
+    public subscribers: any;
 
     constructor() {
         this.subscribers = {};
     }
 
     public dispatch(...props): void {
-        Object.values(this.subscribers).forEach((subscriber) => subscriber.callback(...props));
+        Object.values(this.subscribers).forEach((subscriber: any) => subscriber.callback(...props));
     }
 }
 

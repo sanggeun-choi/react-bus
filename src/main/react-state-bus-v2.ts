@@ -8,9 +8,9 @@ class StateBus {
     public state: any;
     public subscribers: any;
 
-    constructor(state) {
-        this.initialState = lodash.cloneDeep(state);
-        this.state = lodash.cloneDeep(state);
+    constructor(initialState: Object) {
+        this.initialState = lodash.cloneDeep(initialState);
+        this.state = lodash.cloneDeep(initialState);
         this.subscribers = {};
     }
 
@@ -23,8 +23,8 @@ class StateBus {
         this.rerender();
     }
 
-    public init(state: any): void {
-        this.state = lodash.cloneDeep(state);
+    public restore(newState: Object): void {
+        this.state = lodash.cloneDeep(newState);
         this.rerender();
     }
 
@@ -42,8 +42,8 @@ class StateBus {
     }
 }
 
-export function createStateBus(state: any): StateBus {
-    return new StateBus(state);
+export function createStateBus(initialState: Object): StateBus {
+    return new StateBus(initialState);
 }
 
 export function useStateBusSelector(stateBus: StateBus, selector: Function): any {

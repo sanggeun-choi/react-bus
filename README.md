@@ -67,7 +67,7 @@ const Controller = () => {
             </button>
             <button onClick={() => console.log(stateBus.state)}>get state</button>
             <button onClick={() => stateBus.reset()}>reset</button>
-            <button onClick={() => stateBus.init({ name: 'tom', number: 1 })}>restore</button>
+            <button onClick={() => stateBus.restore({ name: 'tom', number: 1 })}>restore</button>
             <button onClick={() => eventBus.dispatch('Hello World')}>event</button>
         </div>
     );

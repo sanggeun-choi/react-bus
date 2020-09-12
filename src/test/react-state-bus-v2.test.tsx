@@ -143,7 +143,7 @@ describe('stateBus', () => {
         expect(renderCount).toEqual({ app: 1, input: 1, display: 3, noSubscriber: 1 });
     });
 
-    it('컴포넌트에서 useStateBusSelector 사용시 구독 등록, 컴포넌트 unmount시 구독 해제', () => {
+    it('subscribe, unsubscribe 테스트', () => {
         const { stateBus, getDisplay, getToggle } = setupSubscriberAndUnsubscribe();
 
         expect(getDisplay()).toBeInTheDocument();
@@ -173,7 +173,7 @@ describe('stateBus', () => {
         expect(3).toEqual(renderCount.app);
     });
 
-    it('올바르게 memoize 처리되는지 확인', () => {
+    it('memoization 테스트', () => {
         const { renderCount } = setupMemoization();
 
         expect(renderCount.app).toEqual(1);
@@ -229,13 +229,13 @@ describe('stateBus', () => {
         expect(0).toEqual(stateBus.state.number);
     });
 
-    it('init 테스트', () => {
+    it('restore 테스트', () => {
         const stateBus = createStateBus({ name: 'john', number: 0 });
 
         expect('john').toEqual(stateBus.state.name);
         expect(0).toEqual(stateBus.state.number);
 
-        stateBus.init({ name: 'tom', number: 1 });
+        stateBus.restore({ name: 'tom', number: 1 });
 
         expect('tom').toEqual(stateBus.state.name);
         expect(1).toEqual(stateBus.state.number);
