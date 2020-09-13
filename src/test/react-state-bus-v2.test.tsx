@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { createStateBus, useStateBusReset, useStateBusSelector } from '../main';
+import { createStateBus, useStateBusSelector } from '../main';
 
 const setupRenderSubscriberOnlyTest = () => {
     const stateBus = createStateBus({ name: 'john' });
@@ -129,36 +129,6 @@ const setupMemoization = () => {
     return { renderCount };
 };
 
-const setupUseStateBusResetTest = (options?) => {
-    const stateBus = createStateBus({ name: 'john', number: 0 });
-
-    const Display = () => {
-        useStateBusReset(stateBus, options);
-
-        return <React.Fragment />;
-    };
-
-    const App = () => {
-        const [toggle, setToggle] = useState(true);
-
-        return (
-            <React.Fragment>
-                <button id={'toggle'} onClick={() => setToggle(!toggle)}>
-                    toggle
-                </button>
-                {toggle && <Display />}
-            </React.Fragment>
-        );
-    };
-
-    const { container } = render(<App />);
-
-    return {
-        stateBus,
-        getToggle: () => container.querySelector('#toggle'),
-    };
-};
-
 describe('stateBus', () => {
     it('구독한 컴포넌트만 렌더링', () => {
         const { renderCount, getInput, getDisplay } = setupRenderSubscriberOnlyTest();
@@ -207,40 +177,6 @@ describe('stateBus', () => {
         const { renderCount } = setupMemoization();
 
         expect(renderCount.app).toEqual(1);
-    });
-
-    it('useStateBusReset 테스트', () => {
-        const tester1 = setupUseStateBusResetTest();
-        const tester2 = setupUseStateBusResetTest({ mount: false });
-        const tester3 = setupUseStateBusResetTest({ unmount: false });
-
-        expect(tester1.stateBus.getState()).toEqual({ name: 'john', number: 0 });
-        expect(tester2.stateBus.getState()).toEqual({ name: 'john', number: 0 });
-        expect(tester3.stateBus.getState()).toEqual({ name: 'john', number: 0 });
-
-        tester1.stateBus.dispatch({ name: 'tom', number: 1 });
-        tester2.stateBus.dispatch({ name: 'tom', number: 1 });
-        tester3.stateBus.dispatch({ name: 'tom', number: 1 });
-
-        fireEvent.click(tester1.getToggle());
-        fireEvent.click(tester2.getToggle());
-        fireEvent.click(tester3.getToggle());
-
-        expect(tester1.stateBus.getState()).toEqual({ name: 'john', number: 0 });
-        expect(tester2.stateBus.getState()).toEqual({ name: 'john', number: 0 });
-        expect(tester3.stateBus.getState()).toEqual({ name: 'tom', number: 1 });
-
-        tester1.stateBus.setState({ name: 'tom', number: 1 });
-        tester2.stateBus.setState({ name: 'tom', number: 1 });
-        tester3.stateBus.setState({ name: 'tom', number: 1 });
-
-        fireEvent.click(tester1.getToggle());
-        fireEvent.click(tester2.getToggle());
-        fireEvent.click(tester3.getToggle());
-
-        expect(tester1.stateBus.getState()).toEqual({ name: 'john', number: 0 });
-        expect(tester2.stateBus.getState()).toEqual({ name: 'tom', number: 1 });
-        expect(tester3.stateBus.getState()).toEqual({ name: 'john', number: 0 });
     });
 
     it('dispatch() 테스트', () => {

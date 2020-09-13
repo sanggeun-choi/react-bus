@@ -18,7 +18,6 @@ import {
     createEventBus,
     createStateBus,
     useEventBusSelector,
-    useStateBusReset,
     useStateBusSelector,
 } from '@iore8655/react-bus';
 
@@ -49,8 +48,6 @@ const DisplayNumber = () => {
     useEventBusSelector(eventBus, (message) => {
         console.log(message);
     });
-
-    useStateBusReset(stateBus); // call stateBus.reset() when mounted/unmounted
 
     return (
         <React.Fragment>
