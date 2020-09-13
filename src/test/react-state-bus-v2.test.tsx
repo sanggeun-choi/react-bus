@@ -226,19 +226,20 @@ describe('stateBus', () => {
     it('reset() 테스트', () => {
         const stateBus = createStateBus({ name: 'john', number: 0 });
 
-        expect('john').toEqual(stateBus.getState().name);
-        expect(0).toEqual(stateBus.getState().number);
+        expect(stateBus.getState()).toEqual({ name: 'john', number: 0 });
 
-        stateBus.dispatch((state) => (state.name = 'tom'));
-        stateBus.dispatch((state) => (state.number = 1));
+        stateBus.dispatch({ name: 'tom', number: 1 });
 
-        expect('tom').toEqual(stateBus.getState().name);
-        expect(1).toEqual(stateBus.getState().number);
+        expect(stateBus.getState()).toEqual({ name: 'tom', number: 1 });
 
         stateBus.reset();
 
-        expect('john').toEqual(stateBus.getState().name);
-        expect(0).toEqual(stateBus.getState().number);
+        expect(stateBus.getState()).toEqual({ name: 'john', number: 0 });
+
+        stateBus.dispatch({ name: 'tom', number: 1 });
+        stateBus.reset({ number: 3 });
+
+        expect(stateBus.getState()).toEqual({ name: 'john', number: 3 });
     });
 
     it('restore() 테스트', () => {

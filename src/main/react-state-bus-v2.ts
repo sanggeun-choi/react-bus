@@ -24,8 +24,8 @@ class StateBus extends Bus {
         return this.state;
     }
 
-    public reset(): void {
-        this.state = lodash.cloneDeep(this.initialState);
+    public reset(props: Object = {}): void {
+        this.state = lodash.cloneDeep({ ...this.initialState, ...props });
         this.rerender();
     }
 
