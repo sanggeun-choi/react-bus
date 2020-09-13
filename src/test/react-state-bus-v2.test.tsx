@@ -83,7 +83,7 @@ const setupRootStateImmutableTest = () => {
     const renderCount = { app: 0 };
 
     const App = () => {
-        const state = useStateBusSelector(stateBus, (state) => state);
+        const state = useStateBusSelector(stateBus);
 
         renderCount.app++;
 

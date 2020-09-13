@@ -28,6 +28,17 @@ const stateBus = createStateBus({
 
 const eventBus = createEventBus();
 
+const DisplayAll = () => {
+    const { name, number } = useStateBusSelector(stateBus);
+
+    return (
+        <React.Fragment>
+            <div>name : {name}</div>
+            <div>number : {number}</div>
+        </React.Fragment>
+    );
+};
+
 const DisplayName = () => {
     const name = useStateBusSelector(stateBus, (state) => state.name);
 
@@ -76,6 +87,7 @@ const Controller = () => {
 const App = () => {
     return (
         <React.Fragment>
+            <DisplayAll />
             <DisplayName />
             <DisplayNumber />
             <Controller />

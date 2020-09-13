@@ -52,9 +52,9 @@ export function createStateBus(initialState: Object): StateBus {
     return new StateBus(initialState);
 }
 
-export function useStateBusSelector(stateBus: StateBus, selector: Function): any {
+export function useStateBusSelector(stateBus: StateBus, selector: Function = (state) => state): any {
     const [, forceUpdate] = useState({});
-    const value = useRef(stateBus && selector(stateBus.getState()));
+    const value = useRef(selector(stateBus.getState()));
     const subId = useMemo(() => `sub-${context.subId++}`, []);
 
     useEffect(() => {
