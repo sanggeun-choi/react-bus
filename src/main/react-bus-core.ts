@@ -1,10 +1,5 @@
 export const context = { subId: 0 };
 
-export const BUS_TYPE = {
-    STATE_BUS: 'stateBus',
-    EVENT_BUS: 'eventBus',
-};
-
 export class Bus {
     protected subscribers: any;
 

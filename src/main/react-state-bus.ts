@@ -1,78 +1,74 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { BUS_TYPE, context } from './react-bus-core';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import lodash from 'lodash';
+import { Bus, context } from './react-bus-core';
 
-function assertStateBus(stateBus) {
-    if (stateBus.type !== BUS_TYPE.STATE_BUS) {
-        throw new Error(`${stateBus.type} is not invalid type -> ${BUS_TYPE.STATE_BUS}`);
+class StateBus extends Bus {
+    private initialState: any;
+    private state: any;
+
+    constructor(initialState: Object) {
+        super();
+        this.initialState = lodash.cloneDeep(initialState);
+        this.state = lodash.cloneDeep(initialState);
     }
-}
 
-function assertStateBusList(stateBusList) {
-    stateBusList.forEach((_stateBus) => assertStateBus(_stateBus));
-}
+    private rerender(): void {
+        Object.values(this.subscribers).forEach((subscriber: any) => subscriber.callback());
+    }
 
-export function stateBus(defaultValue) {
-    return {
-        type: BUS_TYPE.STATE_BUS,
-        subscribers: {},
-        get: () => defaultValue,
-    };
-}
+    public setState(props: Object): void {
+        this.state = { ...this.state, ...props };
+    }
 
-export function getStateBusValues(...stateBusList) {
-    assertStateBusList(stateBusList);
+    public getState(): any {
+        return this.state;
+    }
 
-    return stateBusList.map((_stateBus) => _stateBus.get());
-}
+    public reset(props: Object = {}): void {
+        this.state = lodash.cloneDeep({ ...this.initialState, ...props });
+        this.rerender();
+    }
 
-export function setStateBusValues(...params) {
-    assertStateBusList(params.map(([_stateBus]) => _stateBus));
+    public restore(newState: Object): void {
+        this.state = lodash.cloneDeep(newState);
+        this.rerender();
+    }
 
-    const subscribers = {};
-
-    for (const [_stateBus, _value] of params) {
-        _stateBus.get = () => _value;
-
-        for (const [subId, subscriber] of Object.entries(_stateBus.subscribers)) {
-            subscribers[subId] = subscriber;
+    public dispatch(props: Function | Object): void {
+        if (props instanceof Function) {
+            props(this.state);
+            this.setState({});
         }
+
+        if (props instanceof Object) {
+            this.setState(props);
+        }
+
+        this.rerender();
     }
-
-    Object.values(subscribers).forEach((_subscriber: any) => _subscriber.callback());
 }
 
-export function useStateBus(defaultValue) {
-    return useRef(stateBus(defaultValue)).current;
+export function createStateBus(initialState: Object): StateBus {
+    return new StateBus(initialState);
 }
 
-export function useStateBusValue(...stateBusList) {
+export function useStateBusSelector(stateBus: StateBus, selector: Function = (state) => state): any {
     const [, forceUpdate] = useState({});
+    const value = useRef(selector(stateBus.getState()));
     const subId = useMemo(() => `sub-${context.subId++}`, []);
 
     useEffect(() => {
-        assertStateBusList(stateBusList);
+        stateBus.subscribe(subId, () => {
+            const nextValue = selector(stateBus.getState());
 
-        stateBusList.forEach((_stateBus) => (_stateBus.subscribers[subId] = { callback: () => forceUpdate({}) }));
+            if (value.current !== nextValue) {
+                value.current = nextValue;
+                forceUpdate({});
+            }
+        });
 
-        return () => stateBusList.forEach((_stateBus) => delete _stateBus.subscribers[subId]);
-    }, [assertStateBusList, stateBusList, subId]);
+        return () => stateBus.unsubscribe(subId);
+    }, [stateBus, subId, value]);
 
-    return stateBusList.map((_stateBus) => _stateBus.get());
-}
-
-export function useStateBusSetter(...stateBusList) {
-    useEffect(() => {
-        assertStateBusList(stateBusList);
-    }, [assertStateBusList, stateBusList]);
-
-    return stateBusList.map((_stateBus) =>
-        useCallback(
-            (value) => {
-                _stateBus.get = () => value;
-
-                Object.values(_stateBus.subscribers).forEach((subscriber: any) => subscriber.callback());
-            },
-            [_stateBus],
-        ),
-    );
+    return value.current;
 }

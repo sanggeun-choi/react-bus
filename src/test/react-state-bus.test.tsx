@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { getStateBusValues, setStateBusValues, stateBus, useStateBus, useStateBusSetter, useStateBusValue } from '../main';
+import { createStateBus, useStateBusSelector } from '../main';
 
-const setupGlobalStateBus = () => {
-    const nameBus = stateBus('john');
+const setupRenderSubscriberOnlyTest = () => {
+    const stateBus = createStateBus({ name: 'john' });
     const renderCount = { app: 0, display: 0, input: 0, noSubscriber: 0 };
 
     const App = () => {
@@ -19,7 +19,7 @@ const setupGlobalStateBus = () => {
     };
 
     const Display = () => {
-        const [name] = useStateBusValue(nameBus);
+        const name = useStateBusSelector(stateBus, (state) => state.name);
 
         renderCount.display++;
 
@@ -27,59 +27,9 @@ const setupGlobalStateBus = () => {
     };
 
     const Input = () => {
-        const [setName] = useStateBusSetter(nameBus);
-
         renderCount.input++;
 
-        return <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} />;
-    };
-
-    const NoSubscriber = () => {
-        renderCount.noSubscriber++;
-
-        return <React.Fragment />;
-    };
-
-    const { container } = render(<App />);
-
-    return {
-        renderCount,
-        getDisplay: () => container.querySelector('#display'),
-        getInput: () => container.querySelector('#input'),
-    };
-};
-
-const setupLocalStateBus = () => {
-    const renderCount = { app: 0, display: 0, input: 0, noSubscriber: 0 };
-
-    const App = () => {
-        const nameBus = useStateBus('john');
-
-        renderCount.app++;
-
-        return (
-            <React.Fragment>
-                <Display nameBus={nameBus} />
-                <Input nameBus={nameBus} />
-                <NoSubscriber />
-            </React.Fragment>
-        );
-    };
-
-    const Display = ({ nameBus }) => {
-        const [name] = useStateBusValue(nameBus);
-
-        renderCount.display++;
-
-        return <div id={'display'}>{name}</div>;
-    };
-
-    const Input = ({ nameBus }) => {
-        const [setName] = useStateBusSetter(nameBus);
-
-        renderCount.input++;
-
-        return <input id={'input'} type={'text'} onChange={(e) => setName(e.target.value)} />;
+        return <input id={'input'} type={'text'} onChange={(e) => stateBus.dispatch((state) => (state.name = e.target.value))} />;
     };
 
     const NoSubscriber = () => {
@@ -98,7 +48,7 @@ const setupLocalStateBus = () => {
 };
 
 const setupSubscriberAndUnsubscribe = () => {
-    const nameBus = stateBus('john');
+    const stateBus = createStateBus({ name: 'john' });
 
     const App = () => {
         const [toggle, setToggle] = useState(true);
@@ -114,7 +64,7 @@ const setupSubscriberAndUnsubscribe = () => {
     };
 
     const Display = () => {
-        const [name] = useStateBusValue(nameBus);
+        const name = useStateBusSelector(stateBus, (state) => state.name);
 
         return <div id={'display'}>{name}</div>;
     };
@@ -122,86 +72,44 @@ const setupSubscriberAndUnsubscribe = () => {
     const { container } = render(<App />);
 
     return {
-        nameBus,
+        stateBus,
         getToggle: () => container.querySelector('#toggle'),
         getDisplay: () => container.querySelector('#display'),
     };
 };
 
-const setupGetStateBusValues = () => {
-    const nameBus = stateBus('john');
-    const numberBus = stateBus(100);
+const setupRootStateImmutableTest = () => {
+    const stateBus = createStateBus({ number: 1 });
+    const renderCount = { app: 0 };
 
     const App = () => {
-        const [setName, setNumber] = useStateBusSetter(nameBus, numberBus);
+        const state = useStateBusSelector(stateBus);
+
+        renderCount.app++;
 
         return (
-            <button
-                id={'change-values'}
-                onClick={() => {
-                    setName('tom');
-                    setNumber(200);
-                }}
-            >
-                change values
+            <button id={'up'} onClick={() => stateBus.dispatch((state) => state.number++)}>
+                change state
             </button>
         );
     };
 
     const { container } = render(<App />);
 
-    return { nameBus, numberBus, getChangeValues: () => container.querySelector('#change-values') };
-};
-
-const setupSetStateBusValues = () => {
-    const nameBus = stateBus('john');
-    const numberBus = stateBus(100);
-
-    const renderCount = { nameAndNumber: 0, nameOnly: 0 };
-
-    const App = () => {
-        return (
-            <div>
-                <NameAndNumber />
-                <NameOnly />
-            </div>
-        );
+    return {
+        stateBus,
+        renderCount,
+        getUpButton: () => container.querySelector('#up'),
     };
-
-    const NameAndNumber = () => {
-        const [name, number] = useStateBusValue(nameBus, numberBus);
-
-        renderCount.nameAndNumber++;
-
-        return (
-            <div>
-                {name} : {number}
-            </div>
-        );
-    };
-
-    const NameOnly = () => {
-        const [name] = useStateBusValue(nameBus);
-
-        renderCount.nameOnly++;
-
-        return <div>{name}</div>;
-    };
-
-    const { container } = render(<App />);
-
-    return { nameBus, numberBus, renderCount };
 };
 
 const setupMemoization = () => {
-    const globalNameBus = stateBus('john');
+    const stateBus = createStateBus({ name: 'john' });
     const renderCount = { app: 0 };
 
     const App = () => {
         const [, forceUpdate] = useState({});
-        const [name] = useStateBusValue(globalNameBus);
-        const [setName] = useStateBusSetter(globalNameBus);
-        const localNameBus = useStateBus('tom');
+        const name = useStateBusSelector(stateBus, (state) => state.name);
 
         useEffect(() => {
             renderCount.app++;
@@ -211,7 +119,7 @@ const setupMemoization = () => {
             }
 
             forceUpdate({});
-        }, [name, setName, localNameBus, globalNameBus]);
+        }, [name, stateBus]);
 
         return <React.Fragment />;
     };
@@ -222,8 +130,8 @@ const setupMemoization = () => {
 };
 
 describe('stateBus', () => {
-    it('구독한 컴포넌트만 렌더링 - global', () => {
-        const { renderCount, getInput, getDisplay } = setupGlobalStateBus();
+    it('구독한 컴포넌트만 렌더링', () => {
+        const { renderCount, getInput, getDisplay } = setupRenderSubscriberOnlyTest();
 
         expect(getDisplay()).toHaveTextContent('john');
         expect(renderCount).toEqual({ app: 1, input: 1, display: 1, noSubscriber: 1 });
@@ -235,58 +143,114 @@ describe('stateBus', () => {
         expect(renderCount).toEqual({ app: 1, input: 1, display: 3, noSubscriber: 1 });
     });
 
-    it('구독한 컴포넌트만 렌더링 - local', () => {
-        const { renderCount, getInput, getDisplay } = setupLocalStateBus();
-
-        expect(getDisplay()).toHaveTextContent('john');
-        expect(renderCount).toEqual({ app: 1, input: 1, display: 1, noSubscriber: 1 });
-
-        fireEvent.change(getInput(), { target: { value: 'test-1' } });
-        fireEvent.change(getInput(), { target: { value: 'test-2' } });
-
-        expect(getDisplay()).toHaveTextContent('test-2');
-        expect(renderCount).toEqual({ app: 1, input: 1, display: 3, noSubscriber: 1 });
-    });
-
-    it('컴포넌트에서 useStateBusValue 사용시 구독 등록, 컴포넌트 unmount시 구독 해제', () => {
-        const { nameBus, getDisplay, getToggle } = setupSubscriberAndUnsubscribe();
+    it('subscribe, unsubscribe 테스트', () => {
+        const { stateBus, getDisplay, getToggle } = setupSubscriberAndUnsubscribe();
 
         expect(getDisplay()).toBeInTheDocument();
-        expect(Object.values(nameBus.subscribers).length).toEqual(1);
+        expect(Object.values(stateBus.getSubscribers()).length).toEqual(1);
 
         fireEvent.click(getToggle());
 
         expect(getDisplay()).not.toBeInTheDocument();
-        expect(Object.values(nameBus.subscribers).length).toEqual(0);
+        expect(Object.values(stateBus.getSubscribers()).length).toEqual(0);
 
         fireEvent.click(getToggle());
 
         expect(getDisplay()).toBeInTheDocument();
-        expect(Object.values(nameBus.subscribers).length).toEqual(1);
+        expect(Object.values(stateBus.getSubscribers()).length).toEqual(1);
     });
 
-    it('getStateBusValues 기능 테스트', () => {
-        const { nameBus, numberBus, getChangeValues } = setupGetStateBusValues();
+    it('root state immutable 테스트', () => {
+        const { stateBus, renderCount, getUpButton } = setupRootStateImmutableTest();
 
-        fireEvent.click(getChangeValues());
+        expect(1).toEqual(stateBus.getState().number);
+        expect(1).toEqual(renderCount.app);
 
-        expect(getStateBusValues(nameBus, numberBus)).toEqual(['tom', 200]);
+        fireEvent.click(getUpButton());
+        fireEvent.click(getUpButton());
+
+        expect(3).toEqual(stateBus.getState().number);
+        expect(3).toEqual(renderCount.app);
     });
 
-    it('setStateBusValues 기능 테스트', () => {
-        const { nameBus, numberBus, renderCount } = setupSetStateBusValues();
-
-        expect(renderCount).toEqual({ nameAndNumber: 1, nameOnly: 1 });
-
-        setStateBusValues([nameBus, 'tom'], [numberBus, 200]);
-
-        expect(renderCount).toEqual({ nameAndNumber: 2, nameOnly: 2 });
-        expect(getStateBusValues(nameBus, numberBus)).toEqual(['tom', 200]);
-    });
-
-    it('올바르게 memoize 처리되는지 확인', () => {
+    it('memoization 테스트', () => {
         const { renderCount } = setupMemoization();
 
         expect(renderCount.app).toEqual(1);
+    });
+
+    it('dispatch() 테스트', () => {
+        const stateBus = createStateBus({ name: 'john', number: 0 });
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
+
+        stateBus.dispatch((state) => (state.name = 'tom'));
+        stateBus.dispatch((state) => (state.number = 1));
+
+        expect('tom').toEqual(stateBus.getState().name);
+        expect(1).toEqual(stateBus.getState().number);
+
+        stateBus.dispatch({ name: 'jane' });
+        stateBus.dispatch({ number: 2 });
+
+        expect('jane').toEqual(stateBus.getState().name);
+        expect(2).toEqual(stateBus.getState().number);
+    });
+
+    it('setState() 테스트', () => {
+        const stateBus = createStateBus({ name: 'john', number: 0 });
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
+
+        stateBus.setState({ number: 2 });
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(2).toEqual(stateBus.getState().number);
+    });
+
+    it('getState() 테스트', () => {
+        const stateBus = createStateBus({ name: 'john', number: 0 });
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
+
+        stateBus.dispatch((state) => state.number++);
+        stateBus.dispatch((state) => state.number++);
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(2).toEqual(stateBus.getState().number);
+    });
+
+    it('reset() 테스트', () => {
+        const stateBus = createStateBus({ name: 'john', number: 0 });
+
+        expect(stateBus.getState()).toEqual({ name: 'john', number: 0 });
+
+        stateBus.dispatch({ name: 'tom', number: 1 });
+
+        expect(stateBus.getState()).toEqual({ name: 'tom', number: 1 });
+
+        stateBus.reset();
+
+        expect(stateBus.getState()).toEqual({ name: 'john', number: 0 });
+
+        stateBus.dispatch({ name: 'tom', number: 1 });
+        stateBus.reset({ number: 3 });
+
+        expect(stateBus.getState()).toEqual({ name: 'john', number: 3 });
+    });
+
+    it('restore() 테스트', () => {
+        const stateBus = createStateBus({ name: 'john', number: 0 });
+
+        expect('john').toEqual(stateBus.getState().name);
+        expect(0).toEqual(stateBus.getState().number);
+
+        stateBus.restore({ name: 'tom', number: 1 });
+
+        expect('tom').toEqual(stateBus.getState().name);
+        expect(1).toEqual(stateBus.getState().number);
     });
 });
